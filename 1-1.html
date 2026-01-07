@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Question 1 - Answering Questions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Sans:wght@300;400;500;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans', 'Noto Sans KR', sans-serif;
+            background-color: #f3f4f6;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .slide-enter {
+            animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex items-center justify-center bg-slate-100 text-slate-800">
+
+    <!-- Main Container -->
+    <div id="app-container" class="relative w-full h-full max-w-5xl max-h-[90vh] md:aspect-video bg-white md:rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        
+        <!-- Header / Progress -->
+        <div class="h-2 w-full bg-slate-100 shrink-0">
+            <div id="progress-bar" class="h-full bg-indigo-500 transition-all duration-500 ease-out" style="width: 0%"></div>
+        </div>
+
+        <!-- Content Area -->
+        <main id="content-area" class="flex-grow flex flex-col items-center justify-center p-6 md:p-12 relative overflow-y-auto no-scrollbar">
+            <!-- Dynamic Content Injected Here -->
+        </main>
+
+        <!-- Footer / Navigation -->
+        <footer class="h-20 w-full bg-white border-t border-slate-100 flex items-center justify-between px-6 md:px-10 z-10 shrink-0">
+            <!-- Back Button -->
+            <button id="prev-btn" class="flex items-center gap-2 px-4 py-3 text-slate-500 hover:text-indigo-600 font-medium transition-colors opacity-0 pointer-events-none">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                <span class="hidden md:inline">Précédent</span>
+            </button>
+
+            <!-- Center Logo -->
+            <div class="text-xs text-slate-300 font-medium tracking-widest absolute left-1/2 transform -translate-x-1/2 pointer-events-none hidden sm:block">CORÉENO</div>
+
+            <!-- Next Button -->
+            <button id="next-btn" class="group flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-semibold transition-all active:scale-95 shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span>Suivant</span>
+                <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+            </button>
+        </footer>
+    </div>
+
+    <!-- Hidden Audio Player for dynamic source loading -->
+    <audio id="lesson-audio" class="hidden"></audio>
+
+    <script>
+        // --- Data & State ---
+        const slides = [
+            {
+                type: 'cover',
+                title: "문항 1 - 질문에 대답하기",
+                subtitle: "Question 1 - Répondre aux questions"
+            },
+            {
+                type: 'text',
+                // Title Removed
+                content: `
+                    <div class="space-y-8 flex flex-col items-center justify-center h-full">
+                        <p class="text-lg md:text-2xl leading-relaxed text-slate-700 text-center max-w-3xl">
+                            La <span class="font-bold text-indigo-600">Question 1</span> consiste à écouter une question et à y répondre. Il s'agit généralement de sujets simples de la vie quotidienne.
+                        </p>
+                        <div class="flex flex-col md:flex-row gap-6 justify-center items-center w-full">
+                            <div class="bg-indigo-50 px-8 py-6 rounded-2xl flex items-center gap-4 w-full md:w-auto shadow-sm border border-indigo-100">
+                                <i data-lucide="hourglass" class="text-indigo-500 w-8 h-8"></i>
+                                <div class="text-left">
+                                    <p class="text-xs text-indigo-400 font-bold uppercase tracking-wider">Préparation</p>
+                                    <p class="text-2xl font-black text-indigo-700">20 sec</p>
+                                </div>
+                            </div>
+                            <div class="bg-indigo-50 px-8 py-6 rounded-2xl flex items-center gap-4 w-full md:w-auto shadow-sm border border-indigo-100">
+                                <i data-lucide="mic" class="text-indigo-500 w-8 h-8"></i>
+                                <div class="text-left">
+                                    <p class="text-xs text-indigo-400 font-bold uppercase tracking-wider">Réponse</p>
+                                    <p class="text-2xl font-black text-indigo-700">30 sec</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                type: 'example',
+                // Title Removed
+                content: "Les questions portent sur vous-même, vos proches, des objets, votre quotidien, vos expériences passées ou vos projets futurs. Vous devez écouter attentivement pour bien comprendre ce qui est demandé.",
+                audioSrc: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782322/Q_ex_1_vaj6tr.mp3", 
+                koreanText: "가장 친한 친구가 누구예요? 그 친구에 대해 이야기하세요.",
+                badge: "Exemple de question"
+            },
+            {
+                type: 'example',
+                // Title Removed
+                content: "Pendant les 20 secondes de préparation, organisez vos idées. Le temps étant court, n'écrivez pas des phrases complètes. <span class='font-bold text-indigo-600'>Notez des mots-clés</span> et utilisez-les pour parler.",
+                audioSrc: "", // No audio -> Button will be hidden
+                koreanText: "가장 친한 친구, 민수, 고등학교, 친절하다, 키가 크다",
+                badge: "Mots-clés (Notes)"
+            },
+            {
+                type: 'example',
+                title: "Conseils de préparation (Débutant)",
+                content: "Visez 2 à 3 phrases correctes en utilisant la grammaire de base. Utilisez vos mots-clés pour construire des phrases simples.",
+                audioSrc: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782323/R_ex_1_1_ef25g9.mp3", 
+                koreanText: "제 가장 친한 친구는 민수예요. 저는 고등학교에서 민수를 만났어요. 민수는 친절하고 키가 커요.",
+                badge: "Exemple de réponse (Débutant)",
+                levelColor: "bg-green-100 text-green-700 border-green-200"
+            },
+            {
+                type: 'example',
+                title: "Conseils de préparation (Intermédiaire)",
+                content: "Entraînez-vous à faire 4 à 5 phrases plus longues en utilisant des propositions subordonnées et des connecteurs. Un vocabulaire varié aide à obtenir un meilleur score.",
+                audioSrc: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782326/R_ex_1_2_chleqe.mp3", 
+                koreanText: "저는 고등학교 때 민수와 같은 반이었어요. 그때는 별로 친하지 않았지만 같은 대학교에 가면서 아주 가까워졌어요. 민수는 친절하고 키도 커서 친구들에게 인기가 많았고 공부도 정말 잘했어요.",
+                badge: "Exemple de réponse (Intermédiaire)",
+                levelColor: "bg-blue-100 text-blue-700 border-blue-200"
+            },
+            {
+                type: 'example',
+                title: "Conseils de préparation (Avancé)",
+                content: "Utilisez différents temps et construisez un discours cohérent de plus de 6 phrases. Privilégiez une prononciation naturelle et une structure logique plutôt qu'un vocabulaire trop complexe et artificiel.",
+                audioSrc: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782330/R_ex_1_3_fpyxg8.mp3", 
+                koreanText: "저는 고등학교 1학년 때 학교에 아는 사람이 많지 않아서 주로 혼자 시간을 보냈어요. 그런데 같은 반에 있던 민수라는 친구가 저에게 먼저 말을 걸어줬어요. 우리는 같이 점심도 먹고 농구도 자주 하면서 점점 더 가까워졌어요. 민수는 키가 커서 농구를 정말 잘했기 때문에 다른 친구들에게도 인기가 많았어요. 저는 민수 덕분에 많은 친구들을 사귈 수 있었고, 어른이 된 지금도 민수는 제 가장 친한 친구예요.",
+                badge: "Exemple de réponse (Avancé)",
+                levelColor: "bg-purple-100 text-purple-700 border-purple-200"
+            },
+            {
+                type: 'outro',
+                // Title Removed
+                content: `
+                    <div class="flex flex-col items-center justify-center h-full">
+                        <p class="text-lg md:text-2xl text-slate-600 leading-relaxed text-center max-w-3xl">
+                            C'est tout pour cette leçon ! Vous êtes prêts pour continuer ? Analysons ensemble les différentes questions de la <span class="font-bold text-indigo-600">&lt;Question 1&gt;</span> dans l'<span class="font-bold text-indigo-600">&lt;Exercice 1&gt;</span> !
+                        </p>
+                    </div>
+                `
+            }
+        ];
+
+        let currentIndex = 0;
+        let isAudioInitialized = false;
+        let currentAudio = null;
+
+        // --- DOM Elements ---
+        const contentArea = document.getElementById('content-area');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const audioEl = document.getElementById('lesson-audio');
+
+        // --- Audio Logic ---
+        async function initAudio() {
+            if (isAudioInitialized) return;
+            await Tone.start();
+            isAudioInitialized = true;
+        }
+
+        function playClickSound() {
+            if (!isAudioInitialized) return;
+            const synth = new Tone.MembraneSynth().toDestination();
+            synth.volume.value = -10;
+            synth.triggerAttackRelease("C2", "32n");
+        }
+
+        function playBackSound() {
+             if (!isAudioInitialized) return;
+            const synth = new Tone.MembraneSynth().toDestination();
+            synth.volume.value = -10;
+            synth.triggerAttackRelease("G1", "32n");
+        }
+
+        function playCompletionSound() {
+            if (!isAudioInitialized) return;
+            const synth = new Tone.Synth().toDestination();
+            synth.volume.value = -5;
+            const now = Tone.now();
+            synth.triggerAttackRelease("C5", "8n", now);
+            synth.triggerAttackRelease("E5", "8n", now + 0.1);
+            synth.triggerAttackRelease("G5", "8n", now + 0.2);
+            synth.triggerAttackRelease("C6", "4n", now + 0.3);
+        }
+
+        function toggleLessonAudio(src, btnId) {
+            const btn = document.getElementById(btnId);
+            const icon = btn.querySelector('i');
+
+            if (!src) {
+                return; // Should not happen as button is hidden
+            }
+
+            if (audioEl.src !== src) {
+                audioEl.src = src;
+                audioEl.load();
+            }
+
+            if (audioEl.paused) {
+                audioEl.play();
+                btn.innerHTML = `<i data-lucide="pause" class="w-5 h-5 md:w-6 md:h-6 text-white"></i>`;
+                lucide.createIcons();
+            } else {
+                audioEl.pause();
+                btn.innerHTML = `<i data-lucide="play" class="w-5 h-5 md:w-6 md:h-6 text-white ml-1"></i>`;
+                lucide.createIcons();
+            }
+
+            audioEl.onended = () => {
+                btn.innerHTML = `<i data-lucide="play" class="w-5 h-5 md:w-6 md:h-6 text-white ml-1"></i>`;
+                lucide.createIcons();
+            };
+        }
+
+        // --- Render Functions ---
+        function updateProgress() {
+            const progress = ((currentIndex + 1) / slides.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function updateNavigationButtons() {
+            // Back Button
+            if (currentIndex === 0) {
+                prevBtn.classList.add('opacity-0', 'pointer-events-none');
+            } else {
+                prevBtn.classList.remove('opacity-0', 'pointer-events-none');
+            }
+
+            // Next Button
+            if (currentIndex === slides.length - 1) {
+                 nextBtn.innerHTML = `<span>Terminer</span> <i data-lucide="check" class="w-4 h-4"></i>`;
+                 nextBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700', 'shadow-indigo-200');
+                 nextBtn.classList.add('bg-green-500', 'hover:bg-green-600', 'shadow-green-200');
+            } else {
+                 nextBtn.innerHTML = `<span>Suivant</span> <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>`;
+                 nextBtn.className = "group flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-semibold transition-all active:scale-95 shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed";
+            }
+        }
+
+        function renderSlide(index) {
+            audioEl.pause();
+            audioEl.currentTime = 0;
+
+            const slide = slides[index];
+            contentArea.innerHTML = ''; 
+
+            const container = document.createElement('div');
+            container.className = 'w-full max-w-4xl flex flex-col items-center justify-center slide-enter';
+
+            // --- Cover Slide ---
+            if (slide.type === 'cover') {
+                container.innerHTML = `
+                    <div class="mb-8 p-6 md:p-8 bg-indigo-50 rounded-full">
+                        <i data-lucide="mic-2" class="w-16 h-16 md:w-24 md:h-24 text-indigo-600"></i>
+                    </div>
+                    <h1 class="text-3xl md:text-5xl font-black text-center text-slate-800 mb-4 md:mb-6 leading-tight tracking-tight">
+                        ${slide.title}
+                    </h1>
+                    <p class="text-xl md:text-3xl text-slate-500 font-medium text-center">${slide.subtitle}</p>
+                `;
+                nextBtn.innerHTML = `<span>Commencer</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+            } 
+            // --- Text Only Slide / Outro ---
+            else if (slide.type === 'text' || slide.type === 'outro') {
+                if (slide.title) {
+                    container.innerHTML = `<h2 class="text-2xl md:text-4xl font-bold text-slate-800 mb-8 text-center">${slide.title}</h2>`;
+                }
+                container.innerHTML += `
+                    <div class="w-full text-slate-600 flex flex-col items-center">
+                        ${slide.content}
+                    </div>
+                `;
+            }
+            // --- Example / Content with Audio Slide ---
+            else if (slide.type === 'example') {
+                const btnId = `play-btn-${index}`;
+                const hasAudio = slide.audioSrc && slide.audioSrc.length > 0;
+                
+                // Title (conditionally rendered)
+                if (slide.title) {
+                    container.innerHTML += `<h2 class="text-2xl md:text-4xl font-bold text-slate-800 mb-6 text-center">${slide.title}</h2>`;
+                }
+
+                // Adjusted Font Sizes for better fit on screens
+                container.innerHTML += `
+                    <p class="text-base md:text-xl text-slate-600 mb-8 text-center leading-relaxed max-w-3xl">
+                        ${slide.content}
+                    </p>
+
+                    <!-- Example Card -->
+                    <div class="w-full bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col">
+                        
+                        <!-- Header / Badge -->
+                        <div class="px-5 py-3 md:px-6 md:py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between shrink-0">
+                            <span class="text-xs md:text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                                ${slide.badge}
+                            </span>
+                            
+                            <!-- Audio Button (Conditional Render) -->
+                            ${hasAudio ? `
+                            <button id="${btnId}" 
+                                class="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all shadow-md active:scale-95 bg-indigo-500 hover:bg-indigo-600 cursor-pointer"
+                                onclick="toggleLessonAudio('${slide.audioSrc}', '${btnId}')">
+                                <i data-lucide="play" class="w-5 h-5 md:w-6 md:h-6 text-white ml-1"></i>
+                            </button>
+                            ` : ''}
+                        </div>
+
+                        <!-- Korean Text Content (Auto height / padding) -->
+                        <div class="p-6 md:p-10 ${slide.levelColor ? slide.levelColor : 'bg-slate-50'} flex-grow flex items-center justify-center">
+                            <p class="text-lg md:text-2xl font-medium leading-loose md:leading-loose text-slate-800 keep-all text-center">
+                                "${slide.koreanText}"
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            contentArea.appendChild(container);
+            updateNavigationButtons(); 
+            lucide.createIcons();
+        }
+
+        // --- Event Listeners ---
+        nextBtn.addEventListener('click', async () => {
+            if (!isAudioInitialized) {
+                await initAudio();
+            }
+
+            if (currentIndex === slides.length - 1) {
+                playCompletionSound();
+                window.parent.postMessage({ type: 'lesson_complete' }, '*');
+                nextBtn.disabled = true;
+                nextBtn.innerHTML = `<span>Terminé !</span>`;
+                return;
+            }
+
+            playClickSound();
+            currentIndex++;
+            renderSlide(currentIndex);
+            updateProgress();
+        });
+
+        prevBtn.addEventListener('click', () => {
+             if (currentIndex > 0) {
+                 playBackSound();
+                 currentIndex--;
+                 renderSlide(currentIndex);
+                 updateProgress();
+             }
+        });
+
+        // --- Initialization ---
+        renderSlide(currentIndex);
+        updateProgress();
+        lucide.createIcons();
+
+        window.toggleLessonAudio = toggleLessonAudio;
+
+    </script>
+</body>
+</html>
