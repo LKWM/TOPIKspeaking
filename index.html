@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Introduction à l'examen TOPIK Speaking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Sans:wght@300;400;500;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans', 'Noto Sans KR', sans-serif;
+            background-color: #f3f4f6;
+            overflow: hidden; /* Prevent scrolling on body */
+            touch-action: manipulation;
+        }
+
+        .slide-enter {
+            animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom Scrollbar hide */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex items-center justify-center bg-slate-100 text-slate-800">
+
+    <!-- Main Container -->
+    <div id="app-container" class="relative w-full h-full max-w-5xl max-h-[90vh] md:aspect-video bg-white md:rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        
+        <!-- Header / Progress -->
+        <div class="h-2 w-full bg-slate-100 shrink-0">
+            <div id="progress-bar" class="h-full bg-indigo-500 transition-all duration-500 ease-out" style="width: 0%"></div>
+        </div>
+
+        <!-- Content Area -->
+        <main id="content-area" class="flex-grow flex flex-col items-center justify-center p-6 md:p-12 relative overflow-y-auto no-scrollbar">
+            <!-- Dynamic Content Injected Here -->
+        </main>
+
+        <!-- Footer / Navigation -->
+        <footer class="h-20 w-full bg-white border-t border-slate-100 flex items-center justify-between px-6 md:px-10 z-10 shrink-0">
+            <!-- Back Button -->
+            <button id="prev-btn" class="flex items-center gap-2 px-4 py-3 text-slate-500 hover:text-indigo-600 font-medium transition-colors opacity-0 pointer-events-none">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                <span class="hidden md:inline">Précédent</span>
+            </button>
+
+            <!-- Center Logo (Hidden on very small screens if needed, but keeping for brand) -->
+            <div class="text-xs text-slate-300 font-medium tracking-widest absolute left-1/2 transform -translate-x-1/2 pointer-events-none hidden sm:block">CORÉENO</div>
+
+            <!-- Next Button -->
+            <button id="next-btn" class="group flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-semibold transition-all active:scale-95 shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span>Suivant</span>
+                <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+            </button>
+        </footer>
+    </div>
+
+    <script>
+        // --- Data & State ---
+        const slides = [
+            {
+                type: 'cover',
+                title: "TOPIK 말하기 시험 소개",
+                subtitle: "Introduction à l'examen TOPIK production orale"
+            },
+            {
+                type: 'text',
+                title: "Qu'est-ce que le <br>TOPIK 말하기 ?",
+                content: `
+                    <p class="mb-6 text-lg md:text-2xl leading-relaxed text-center md:text-left">
+                        Le <strong>&lt;TOPIK 말하기&gt;</strong> est le seul examen officiel évaluant principalement les compétences de communication orale en coréen.
+                    </p>
+                    <div class="bg-indigo-50 p-6 md:p-8 rounded-xl border border-indigo-100 w-full">
+                        <ul class="space-y-4 text-base md:text-xl text-slate-700">
+                            <li class="flex items-start gap-3">
+                                <i data-lucide="calendar" class="w-6 h-6 md:w-8 md:h-8 text-indigo-500 shrink-0 mt-0.5"></i>
+                                <span>En 2025, il a lieu 3 fois par an.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i data-lucide="globe" class="w-6 h-6 md:w-8 md:h-8 text-indigo-500 shrink-0 mt-0.5"></i>
+                                <span>Actuellement uniquement en Corée, mais une expansion internationale est prévue.</span>
+                            </li>
+                        </ul>
+                    </div>
+                `
+            },
+            {
+                type: 'text',
+                title: "Format de l'examen",
+                content: `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-8">
+                        <div class="bg-white p-6 md:p-10 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center text-center transition-transform hover:scale-105">
+                            <div class="w-14 h-14 md:w-20 md:h-20 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mb-4">
+                                <i data-lucide="clock" class="w-7 h-7 md:w-10 md:h-10"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-xl md:text-3xl">30 Minutes</h3>
+                            <p class="text-base md:text-xl text-slate-500 mt-2">Durée totale</p>
+                        </div>
+                        <div class="bg-white p-6 md:p-10 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center text-center transition-transform hover:scale-105">
+                            <div class="w-14 h-14 md:w-20 md:h-20 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mb-4">
+                                <i data-lucide="mic" class="w-7 h-7 md:w-10 md:h-10"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-xl md:text-3xl">CBT</h3>
+                            <p class="text-base md:text-xl text-slate-500 mt-2">Enregistrement sur ordinateur</p>
+                        </div>
+                    </div>
+                    <p class="mt-4 text-center text-slate-600 leading-relaxed text-lg md:text-2xl">
+                        Le &lt;TOPIK 말하기&gt; n'est pas divisé par niveau.<br>
+                        <span class="font-semibold text-indigo-600 mt-2 block">Tous les candidats, du débutant à l'avancé, passent le même examen.</span>
+                    </p>
+                `
+            },
+            {
+                type: 'list',
+                category: "Débutant (초급)",
+                items: [
+                    {
+                        kor: "문항 1 - 질문에 대답하기 (30초)",
+                        fr: "Question 1 - Répondre aux questions"
+                    },
+                    {
+                        kor: "문항 2 - 그림 보고 역할 수행하기 (40초)",
+                        fr: "Question 2 - Jeu de rôle à partir d'une image"
+                    }
+                ],
+                intro: "L'examen se compose de 6 questions au total."
+            },
+            {
+                type: 'list',
+                category: "Intermédiaire (중급)",
+                items: [
+                    {
+                        kor: "문항 3 - 그림 보고 이야기하기 (60초)",
+                        fr: "Question 3 - Raconter une histoire à partir d'images"
+                    },
+                    {
+                        kor: "문항 4 - 대화 완성하기 (60초)",
+                        fr: "Question 4 - Compléter une conversation"
+                    }
+                ],
+                intro: ""
+            },
+            {
+                type: 'list',
+                category: "Avancé (고급)",
+                items: [
+                    {
+                        kor: "문항 5 - 자료 해석하기 (80초)",
+                        fr: "Question 5 - Interpréter des données"
+                    },
+                    {
+                        kor: "문항 6 - 의견 제시하기 (80초)",
+                        fr: "Question 6 - Exprimer une opinion"
+                    }
+                ],
+                intro: ""
+            },
+            {
+                type: 'text',
+                title: "Attention",
+                content: `
+                    <div class="bg-orange-50 p-8 md:p-12 rounded-2xl border border-orange-100 text-center w-full">
+                        <i data-lucide="alert-circle" class="w-12 h-12 md:w-16 md:h-16 text-orange-500 mx-auto mb-6"></i>
+                        <p class="text-slate-800 leading-relaxed text-lg md:text-2xl font-medium">
+                            Pour le &lt;TOPIK 말하기&gt;, vous devez comprendre les questions et y répondre par vous-même, en préparant votre discours très rapidement.
+                        </p>
+                        <hr class="border-orange-200 my-6">
+                        <p class="text-orange-700 font-bold text-base md:text-xl">
+                            Il peut ne pas convenir aux grands débutants qui viennent de commencer le coréen.
+                        </p>
+                    </div>
+                `
+            },
+            {
+                type: 'text',
+                title: "Recommandations",
+                content: `
+                    <p class="mb-8 text-center text-slate-600 text-lg md:text-2xl">Nous recommandons de passer cet examen si :</p>
+                    <div class="space-y-4 w-full max-w-2xl">
+                        <div class="flex items-center p-6 md:p-8 bg-white rounded-xl shadow-sm border border-slate-200 transition-transform hover:scale-[1.02]">
+                            <div class="w-10 h-10 md:w-14 md:h-14 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-lg md:text-2xl mr-5 shrink-0">1</div>
+                            <span class="text-slate-700 font-medium text-lg md:text-2xl">Niveau TOPIK général 2 ou plus</span>
+                        </div>
+                        <div class="flex items-center p-6 md:p-8 bg-white rounded-xl shadow-sm border border-slate-200 transition-transform hover:scale-[1.02]">
+                            <div class="w-10 h-10 md:w-14 md:h-14 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-lg md:text-2xl mr-5 shrink-0">2</div>
+                            <span class="text-slate-700 font-medium text-lg md:text-2xl">Suivre sans difficulté les cours A1-A2 sur CoréenO</span>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                type: 'outro',
+                title: "Prêt à commencer ?",
+                content: `
+                    <p class="text-xl md:text-3xl text-slate-600 mb-8 leading-relaxed text-center">
+                        Même si vous ne passez pas l'examen, suivre le cours <span class="font-bold text-indigo-600">&lt;TOPIK 말하기&gt;</span> de CoréenO améliorera considérablement vos compétences orales.
+                    </p>
+                    <p class="text-lg md:text-2xl text-slate-500 text-center">
+                        Examinons ensemble le contenu détaillé, les méthodes de préparation et les exercices pratiques dans la <strong>&lt;Question 1&gt;</strong> !
+                    </p>
+                `
+            }
+        ];
+
+        let currentIndex = 0;
+        let isAudioInitialized = false;
+
+        // --- DOM Elements ---
+        const contentArea = document.getElementById('content-area');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const progressBar = document.getElementById('progress-bar');
+
+        // --- Sound Logic (Tone.js) ---
+        async function initAudio() {
+            if (isAudioInitialized) return;
+            await Tone.start();
+            isAudioInitialized = true;
+        }
+
+        function playClickSound() {
+            if (!isAudioInitialized) return;
+            const synth = new Tone.MembraneSynth().toDestination();
+            synth.volume.value = -10;
+            synth.triggerAttackRelease("C2", "32n");
+        }
+        
+        function playBackSound() {
+             if (!isAudioInitialized) return;
+            const synth = new Tone.MembraneSynth().toDestination();
+            synth.volume.value = -10;
+            synth.triggerAttackRelease("G1", "32n");
+        }
+
+        function playCompletionSound() {
+            if (!isAudioInitialized) return;
+            const synth = new Tone.Synth().toDestination();
+            synth.volume.value = -5;
+            const now = Tone.now();
+            synth.triggerAttackRelease("C5", "8n", now);
+            synth.triggerAttackRelease("E5", "8n", now + 0.1);
+            synth.triggerAttackRelease("G5", "8n", now + 0.2);
+            synth.triggerAttackRelease("C6", "4n", now + 0.3);
+        }
+
+        // --- Render Functions ---
+        function updateProgress() {
+            const progress = ((currentIndex + 1) / slides.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function updateNavigationButtons() {
+            // Handle Back Button Visibility
+            if (currentIndex === 0) {
+                prevBtn.classList.add('opacity-0', 'pointer-events-none');
+            } else {
+                prevBtn.classList.remove('opacity-0', 'pointer-events-none');
+            }
+
+            // Handle Next Button State
+            if (currentIndex === slides.length - 1) {
+                 nextBtn.innerHTML = `<span>Terminer</span> <i data-lucide="check" class="w-4 h-4"></i>`;
+                 nextBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700', 'shadow-indigo-200');
+                 nextBtn.classList.add('bg-green-500', 'hover:bg-green-600', 'shadow-green-200');
+            } else {
+                 nextBtn.innerHTML = `<span>Suivant</span> <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>`;
+                 nextBtn.className = "group flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-semibold transition-all active:scale-95 shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed";
+            }
+        }
+
+        function renderSlide(index) {
+            const slide = slides[index];
+            contentArea.innerHTML = ''; // Clear previous content
+
+            const container = document.createElement('div');
+            container.className = 'w-full max-w-4xl flex flex-col items-center slide-enter'; // Widened max-w for PC
+
+            if (slide.type === 'cover') {
+                container.innerHTML = `
+                    <div class="mb-8 p-6 md:p-8 bg-indigo-50 rounded-full">
+                        <i data-lucide="message-circle" class="w-16 h-16 md:w-24 md:h-24 text-indigo-600"></i>
+                    </div>
+                    <h1 class="text-3xl md:text-6xl font-black text-center text-slate-800 mb-4 md:mb-6 leading-tight tracking-tight">
+                        ${slide.title}
+                    </h1>
+                    <p class="text-xl md:text-3xl text-slate-500 font-medium text-center">${slide.subtitle}</p>
+                `;
+                // Arrow removed as requested
+                nextBtn.innerHTML = `<span>Commencer</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+            } 
+            else if (slide.type === 'text' || slide.type === 'outro') {
+                container.innerHTML = `
+                    <h2 class="text-2xl md:text-5xl font-bold text-slate-800 mb-8 md:mb-12 text-center">${slide.title}</h2>
+                    <div class="w-full text-slate-600 flex flex-col items-center">
+                        ${slide.content}
+                    </div>
+                `;
+            }
+            else if (slide.type === 'list') {
+                let itemsHtml = slide.items.map(item => `
+                    <div class="w-full bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 mb-4 last:mb-0 transition-transform hover:scale-[1.01] flex flex-col items-center text-center">
+                        <p class="font-bold text-slate-800 text-xl md:text-3xl mb-2">${item.kor}</p>
+                        <p class="text-indigo-600 text-base md:text-xl font-medium">${item.fr}</p>
+                    </div>
+                `).join('');
+
+                container.innerHTML = `
+                    ${slide.intro ? `<p class="text-slate-500 mb-8 text-center text-lg md:text-2xl">${slide.intro}</p>` : ''}
+                    <div class="inline-block px-5 py-2 md:px-8 md:py-3 rounded-full bg-indigo-100 text-indigo-700 font-bold text-sm md:text-xl mb-8 md:mb-12">
+                        ${slide.category}
+                    </div>
+                    <div class="w-full">
+                        ${itemsHtml}
+                    </div>
+                `;
+            }
+
+            contentArea.appendChild(container);
+            updateNavigationButtons(); // Ensure button states are correct
+            lucide.createIcons();
+        }
+
+        // --- Event Listeners ---
+        nextBtn.addEventListener('click', async () => {
+            // Init Audio on first click
+            if (!isAudioInitialized) {
+                await initAudio();
+            }
+
+            // Check if last slide
+            if (currentIndex === slides.length - 1) {
+                playCompletionSound();
+                window.parent.postMessage({ type: 'lesson_complete' }, '*');
+                
+                nextBtn.disabled = true;
+                nextBtn.innerHTML = `<span>Terminé !</span>`;
+                return;
+            }
+
+            // Normal Navigation
+            playClickSound();
+            currentIndex++;
+            renderSlide(currentIndex);
+            updateProgress();
+        });
+
+        prevBtn.addEventListener('click', () => {
+             if (currentIndex > 0) {
+                 playBackSound();
+                 currentIndex--;
+                 renderSlide(currentIndex);
+                 updateProgress();
+             }
+        });
+
+        // --- Initialization ---
+        renderSlide(currentIndex);
+        updateProgress();
+        lucide.createIcons();
+
+    </script>
+</body>
+</html>
