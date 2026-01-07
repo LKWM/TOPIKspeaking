@@ -17,69 +17,53 @@
             touch-action: manipulation;
         }
 
-        .slide-enter {
-            animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
+        .slide-enter { animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        /* Responsive Fluid Text */
+        .text-fluid-xs { font-size: clamp(0.75rem, 1.5vh, 1rem); }
+        .text-fluid-sm { font-size: clamp(0.875rem, 2vh, 1.25rem); }
+        .text-fluid-base { font-size: clamp(1rem, 2.5vh, 1.5rem); }
+        .text-fluid-lg { font-size: clamp(1.25rem, 3.5vh, 2.25rem); }
+        .text-fluid-xl { font-size: clamp(1.75rem, 5vh, 4rem); }
     </style>
 </head>
-<body class="h-screen w-screen flex items-center justify-center bg-slate-100 text-slate-800">
+<body class="h-screen w-screen flex items-center justify-center bg-slate-100 text-slate-800 md:p-4">
 
     <!-- Main Container -->
-    <div id="app-container" class="relative w-full h-full max-w-5xl max-h-[90vh] md:aspect-video bg-white md:rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+    <div id="app-container" class="relative w-full h-full bg-white md:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-w-[1920px] mx-auto">
         
         <!-- Header / Progress -->
-        <div class="h-2 w-full bg-slate-100 shrink-0">
+        <div class="h-1.5 w-full bg-slate-100 shrink-0">
             <div id="progress-bar" class="h-full bg-indigo-500 transition-all duration-500 ease-out" style="width: 0%"></div>
         </div>
 
         <!-- Content Area -->
-        <main id="content-area" class="flex-grow flex flex-col items-center justify-center p-6 md:p-12 relative overflow-y-auto no-scrollbar">
-            <!-- Dynamic Content Injected Here -->
+        <main id="content-area" class="flex-grow flex flex-col items-center justify-center p-6 md:p-10 relative overflow-hidden">
+            <!-- Dynamic Content -->
         </main>
 
         <!-- Footer / Navigation -->
-        <footer class="h-20 w-full bg-white border-t border-slate-100 flex items-center justify-between px-6 md:px-10 z-10 shrink-0">
-            <!-- Back Button -->
-            <button id="prev-btn" class="flex items-center gap-2 px-4 py-3 text-slate-500 hover:text-indigo-600 font-medium transition-colors opacity-0 pointer-events-none">
-                <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                <span class="hidden md:inline">Précédent</span>
+        <footer class="h-[10vh] max-h-20 w-full bg-white border-t border-slate-100 flex items-center justify-between px-6 md:px-10 z-10 shrink-0">
+            <button id="prev-btn" class="flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-medium transition-colors opacity-0 pointer-events-none">
+                <i data-lucide="arrow-left" class="w-[2.5vh] h-[2.5vh]"></i>
+                <span class="hidden md:inline text-fluid-sm">Précédent</span>
             </button>
 
-            <!-- Center Logo -->
-            <div class="text-xs text-slate-300 font-medium tracking-widest absolute left-1/2 transform -translate-x-1/2 pointer-events-none hidden sm:block">CORÉENO</div>
+            <div class="text-xs md:text-sm text-slate-300 font-medium tracking-widest absolute left-1/2 transform -translate-x-1/2 pointer-events-none">CORÉENO</div>
 
-            <!-- Next Button -->
-            <button id="next-btn" class="group flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-semibold transition-all active:scale-95 shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed">
+            <button id="next-btn" class="group flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-semibold transition-all active:scale-95 shadow-lg shadow-indigo-200 disabled:opacity-50 text-fluid-sm">
                 <span>Suivant</span>
-                <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                <i data-lucide="arrow-right" class="w-[2.5vh] h-[2.5vh] group-hover:translate-x-1 transition-transform"></i>
             </button>
         </footer>
     </div>
 
-    <!-- Hidden Audio Player for dynamic source loading -->
+    <!-- Hidden Audio Player -->
     <audio id="lesson-audio" class="hidden"></audio>
 
     <script>
-        // --- Data & State ---
+        // --- Data ---
         const slides = [
             {
                 type: 'cover',
@@ -88,26 +72,21 @@
             },
             {
                 type: 'text',
-                // Title Removed
                 content: `
-                    <div class="space-y-8 flex flex-col items-center justify-center h-full">
-                        <p class="text-lg md:text-2xl leading-relaxed text-slate-700 text-center max-w-3xl">
-                            La <span class="font-bold text-indigo-600">Question 1</span> consiste à écouter une question et à y répondre. Il s'agit généralement de sujets simples de la vie quotidienne.
+                    <div class="flex flex-col items-center justify-center h-full w-full gap-[5vh]">
+                        <p class="text-fluid-lg leading-relaxed text-slate-700 text-center max-w-4xl px-4">
+                            La <span class="font-bold text-indigo-600">Question 1</span> consiste à écouter une question et à y répondre. Le sujet porte sur des thèmes simples de la vie quotidienne.
                         </p>
-                        <div class="flex flex-col md:flex-row gap-6 justify-center items-center w-full">
-                            <div class="bg-indigo-50 px-8 py-6 rounded-2xl flex items-center gap-4 w-full md:w-auto shadow-sm border border-indigo-100">
-                                <i data-lucide="hourglass" class="text-indigo-500 w-8 h-8"></i>
-                                <div class="text-left">
-                                    <p class="text-xs text-indigo-400 font-bold uppercase tracking-wider">Préparation</p>
-                                    <p class="text-2xl font-black text-indigo-700">20 sec</p>
-                                </div>
+                        <div class="flex flex-row gap-[4vw] justify-center items-center w-full">
+                            <div class="bg-indigo-50 px-[4vw] py-[3vh] rounded-3xl flex flex-col items-center gap-2 shadow-sm border border-indigo-100">
+                                <i data-lucide="hourglass" class="text-indigo-500 w-[6vh] h-[6vh]"></i>
+                                <p class="text-fluid-sm text-indigo-400 font-bold uppercase tracking-wider mt-1">Préparation</p>
+                                <p class="text-fluid-xl font-black text-indigo-700 leading-none">20<span class="text-fluid-lg">s</span></p>
                             </div>
-                            <div class="bg-indigo-50 px-8 py-6 rounded-2xl flex items-center gap-4 w-full md:w-auto shadow-sm border border-indigo-100">
-                                <i data-lucide="mic" class="text-indigo-500 w-8 h-8"></i>
-                                <div class="text-left">
-                                    <p class="text-xs text-indigo-400 font-bold uppercase tracking-wider">Réponse</p>
-                                    <p class="text-2xl font-black text-indigo-700">30 sec</p>
-                                </div>
+                            <div class="bg-indigo-50 px-[4vw] py-[3vh] rounded-3xl flex flex-col items-center gap-2 shadow-sm border border-indigo-100">
+                                <i data-lucide="mic" class="text-indigo-500 w-[6vh] h-[6vh]"></i>
+                                <p class="text-fluid-sm text-indigo-400 font-bold uppercase tracking-wider mt-1">Réponse</p>
+                                <p class="text-fluid-xl font-black text-indigo-700 leading-none">30<span class="text-fluid-lg">s</span></p>
                             </div>
                         </div>
                     </div>
@@ -115,7 +94,7 @@
             },
             {
                 type: 'example',
-                // Title Removed
+                title: "Contenu des questions",
                 content: "Les questions portent sur vous-même, vos proches, des objets, votre quotidien, vos expériences passées ou vos projets futurs. Vous devez écouter attentivement pour bien comprendre ce qui est demandé.",
                 audioSrc: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782322/Q_ex_1_vaj6tr.mp3", 
                 koreanText: "가장 친한 친구가 누구예요? 그 친구에 대해 이야기하세요.",
@@ -123,9 +102,9 @@
             },
             {
                 type: 'example',
-                // Title Removed
-                content: "Pendant les 20 secondes de préparation, organisez vos idées. Le temps étant court, n'écrivez pas des phrases complètes. <span class='font-bold text-indigo-600'>Notez des mots-clés</span> et utilisez-les pour parler.",
-                audioSrc: "", // No audio -> Button will be hidden
+                title: "Stratégie de préparation",
+                content: "Pendant les 20 secondes de préparation, organisez vos idées et planifiez les détails. Le temps étant court, n'écrivez pas de phrases complètes. <span class='font-bold text-indigo-600'>Notez des mots-clés</span> et utilisez-les pour parler.",
+                audioSrc: "", 
                 koreanText: "가장 친한 친구, 민수, 고등학교, 친절하다, 키가 크다",
                 badge: "Mots-clés (Notes)"
             },
@@ -158,11 +137,13 @@
             },
             {
                 type: 'outro',
-                // Title Removed
                 content: `
-                    <div class="flex flex-col items-center justify-center h-full">
-                        <p class="text-lg md:text-2xl text-slate-600 leading-relaxed text-center max-w-3xl">
-                            C'est tout pour cette leçon ! Vous êtes prêts pour continuer ? Analysons ensemble les différentes questions de la <span class="font-bold text-indigo-600">&lt;Question 1&gt;</span> dans l'<span class="font-bold text-indigo-600">&lt;Exercice 1&gt;</span> !
+                    <div class="flex flex-col items-center justify-center h-full gap-[3vh] px-4">
+                        <div class="p-[3vh] bg-indigo-50 rounded-full shadow-sm">
+                            <i data-lucide="check-circle-2" class="w-[8vh] h-[8vh] text-indigo-600"></i>
+                        </div>
+                        <p class="text-fluid-lg text-slate-600 leading-relaxed text-center max-w-4xl">
+                            Maintenant, analysons ensemble les différentes questions de la <br><span class="font-bold text-indigo-600">&lt;Question 1&gt;</span> dans l'<span class="font-bold text-indigo-600">&lt;Exercice 1&gt;</span> !
                         </p>
                     </div>
                 `
@@ -171,54 +152,39 @@
 
         let currentIndex = 0;
         let isAudioInitialized = false;
-        let currentAudio = null;
 
-        // --- DOM Elements ---
         const contentArea = document.getElementById('content-area');
         const nextBtn = document.getElementById('next-btn');
         const prevBtn = document.getElementById('prev-btn');
         const progressBar = document.getElementById('progress-bar');
         const audioEl = document.getElementById('lesson-audio');
 
-        // --- Audio Logic ---
         async function initAudio() {
             if (isAudioInitialized) return;
             await Tone.start();
             isAudioInitialized = true;
         }
 
-        function playClickSound() {
+        function playSound(type) {
             if (!isAudioInitialized) return;
             const synth = new Tone.MembraneSynth().toDestination();
-            synth.volume.value = -10;
-            synth.triggerAttackRelease("C2", "32n");
-        }
+            const melodySynth = new Tone.Synth().toDestination();
 
-        function playBackSound() {
-             if (!isAudioInitialized) return;
-            const synth = new Tone.MembraneSynth().toDestination();
-            synth.volume.value = -10;
-            synth.triggerAttackRelease("G1", "32n");
-        }
-
-        function playCompletionSound() {
-            if (!isAudioInitialized) return;
-            const synth = new Tone.Synth().toDestination();
-            synth.volume.value = -5;
-            const now = Tone.now();
-            synth.triggerAttackRelease("C5", "8n", now);
-            synth.triggerAttackRelease("E5", "8n", now + 0.1);
-            synth.triggerAttackRelease("G5", "8n", now + 0.2);
-            synth.triggerAttackRelease("C6", "4n", now + 0.3);
+            switch(type) {
+                case 'click': synth.triggerAttackRelease("C2", "32n"); break;
+                case 'complete': 
+                    const now = Tone.now();
+                    melodySynth.triggerAttackRelease("C5", "8n", now);
+                    melodySynth.triggerAttackRelease("E5", "8n", now + 0.1);
+                    melodySynth.triggerAttackRelease("G5", "8n", now + 0.2);
+                    melodySynth.triggerAttackRelease("C6", "4n", now + 0.3);
+                    break;
+            }
         }
 
         function toggleLessonAudio(src, btnId) {
             const btn = document.getElementById(btnId);
-            const icon = btn.querySelector('i');
-
-            if (!src) {
-                return; // Should not happen as button is hidden
-            }
+            if (!src) return;
 
             if (audioEl.src !== src) {
                 audioEl.src = src;
@@ -227,42 +193,34 @@
 
             if (audioEl.paused) {
                 audioEl.play();
-                btn.innerHTML = `<i data-lucide="pause" class="w-5 h-5 md:w-6 md:h-6 text-white"></i>`;
+                btn.innerHTML = `<i data-lucide="pause" class="w-full h-full text-white p-2"></i>`;
                 lucide.createIcons();
             } else {
                 audioEl.pause();
-                btn.innerHTML = `<i data-lucide="play" class="w-5 h-5 md:w-6 md:h-6 text-white ml-1"></i>`;
+                btn.innerHTML = `<i data-lucide="play" class="w-full h-full text-white p-2 ml-1"></i>`;
                 lucide.createIcons();
             }
 
             audioEl.onended = () => {
-                btn.innerHTML = `<i data-lucide="play" class="w-5 h-5 md:w-6 md:h-6 text-white ml-1"></i>`;
+                btn.innerHTML = `<i data-lucide="play" class="w-full h-full text-white p-2 ml-1"></i>`;
                 lucide.createIcons();
             };
         }
 
-        // --- Render Functions ---
         function updateProgress() {
-            const progress = ((currentIndex + 1) / slides.length) * 100;
-            progressBar.style.width = `${progress}%`;
+            progressBar.style.width = `${((currentIndex + 1) / slides.length) * 100}%`;
         }
 
-        function updateNavigationButtons() {
-            // Back Button
-            if (currentIndex === 0) {
-                prevBtn.classList.add('opacity-0', 'pointer-events-none');
-            } else {
-                prevBtn.classList.remove('opacity-0', 'pointer-events-none');
-            }
+        function updateNavigation() {
+            if (currentIndex === 0) prevBtn.classList.add('opacity-0', 'pointer-events-none');
+            else prevBtn.classList.remove('opacity-0', 'pointer-events-none');
 
-            // Next Button
             if (currentIndex === slides.length - 1) {
-                 nextBtn.innerHTML = `<span>Terminer</span> <i data-lucide="check" class="w-4 h-4"></i>`;
-                 nextBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700', 'shadow-indigo-200');
-                 nextBtn.classList.add('bg-green-500', 'hover:bg-green-600', 'shadow-green-200');
+                 nextBtn.innerHTML = `<span>Terminer</span> <i data-lucide="check" class="w-[2.5vh] h-[2.5vh]"></i>`;
+                 nextBtn.className = "group flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-full font-semibold transition-all shadow-lg shadow-green-200 text-fluid-sm";
             } else {
-                 nextBtn.innerHTML = `<span>Suivant</span> <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>`;
-                 nextBtn.className = "group flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-semibold transition-all active:scale-95 shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed";
+                 nextBtn.innerHTML = `<span>Suivant</span> <i data-lucide="arrow-right" class="w-[2.5vh] h-[2.5vh] group-hover:translate-x-1 transition-transform"></i>`;
+                 nextBtn.className = "group flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-semibold transition-all active:scale-95 shadow-lg shadow-indigo-200 text-fluid-sm";
             }
         }
 
@@ -274,71 +232,71 @@
             contentArea.innerHTML = ''; 
 
             const container = document.createElement('div');
-            container.className = 'w-full max-w-4xl flex flex-col items-center justify-center slide-enter';
+            container.className = 'w-full h-full flex flex-col items-center slide-enter';
 
-            // --- Cover Slide ---
+            // Justify-center for cover to match Exercise 1
             if (slide.type === 'cover') {
+                container.classList.add('justify-center', 'gap-[4vh]');
                 container.innerHTML = `
-                    <div class="mb-8 p-6 md:p-8 bg-indigo-50 rounded-full">
-                        <i data-lucide="mic-2" class="w-16 h-16 md:w-24 md:h-24 text-indigo-600"></i>
+                    <div class="flex flex-col items-center justify-center gap-[4vh] h-full pb-[10vh]">
+                        <div class="p-[3vh] bg-indigo-50 rounded-full shrink-0 shadow-sm">
+                            <i data-lucide="mic-2" class="w-[10vh] h-[10vh] text-indigo-600"></i>
+                        </div>
+                        <div class="text-center">
+                            <h1 class="text-fluid-xl font-black text-center text-slate-800 mb-[2vh] leading-tight tracking-tight">${slide.title}</h1>
+                            <p class="text-fluid-lg text-slate-500 font-medium text-center">${slide.subtitle}</p>
+                        </div>
                     </div>
-                    <h1 class="text-3xl md:text-5xl font-black text-center text-slate-800 mb-4 md:mb-6 leading-tight tracking-tight">
-                        ${slide.title}
-                    </h1>
-                    <p class="text-xl md:text-3xl text-slate-500 font-medium text-center">${slide.subtitle}</p>
                 `;
-                nextBtn.innerHTML = `<span>Commencer</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+                nextBtn.innerHTML = `<span>Commencer</span> <i data-lucide="arrow-right" class="w-[2.5vh] h-[2.5vh]"></i>`;
             } 
-            // --- Text Only Slide / Outro ---
             else if (slide.type === 'text' || slide.type === 'outro') {
+                container.classList.add('justify-evenly');
                 if (slide.title) {
-                    container.innerHTML = `<h2 class="text-2xl md:text-4xl font-bold text-slate-800 mb-8 text-center">${slide.title}</h2>`;
+                    container.innerHTML = `<h2 class="text-fluid-xl font-bold text-slate-800 text-center">${slide.title}</h2>`;
                 }
-                container.innerHTML += `
-                    <div class="w-full text-slate-600 flex flex-col items-center">
-                        ${slide.content}
-                    </div>
-                `;
+                container.innerHTML += `<div class="w-full flex-grow flex flex-col justify-center">${slide.content}</div>`;
             }
-            // --- Example / Content with Audio Slide ---
             else if (slide.type === 'example') {
+                container.classList.add('justify-between'); 
                 const btnId = `play-btn-${index}`;
                 const hasAudio = slide.audioSrc && slide.audioSrc.length > 0;
                 
-                // Title (conditionally rendered)
+                // Top Title
                 if (slide.title) {
-                    container.innerHTML += `<h2 class="text-2xl md:text-4xl font-bold text-slate-800 mb-6 text-center">${slide.title}</h2>`;
+                    container.innerHTML += `<h2 class="text-fluid-lg font-bold text-slate-800 text-center mb-[2vh] shrink-0">${slide.title}</h2>`;
+                } else {
+                    container.innerHTML += `<div class="h-[2vh] shrink-0"></div>`; 
                 }
 
-                // Adjusted Font Sizes for better fit on screens
+                // Middle Content (Instruction)
                 container.innerHTML += `
-                    <p class="text-base md:text-xl text-slate-600 mb-8 text-center leading-relaxed max-w-3xl">
-                        ${slide.content}
-                    </p>
+                    <div class="flex-grow flex items-center justify-center px-4 mb-[2vh]">
+                        <p class="text-fluid-base text-slate-600 text-center leading-relaxed max-w-5xl">
+                            ${slide.content}
+                        </p>
+                    </div>
+                `;
 
-                    <!-- Example Card -->
-                    <div class="w-full bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col">
-                        
-                        <!-- Header / Badge -->
-                        <div class="px-5 py-3 md:px-6 md:py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between shrink-0">
-                            <span class="text-xs md:text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                // Bottom Content (Card)
+                // Using flex-grow-0 to keep it from taking too much space, max-height relative to vh
+                container.innerHTML += `
+                    <div class="w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col shrink-0 h-[45vh] md:h-[50vh] mb-[2vh]">
+                        <div class="px-6 py-3 bg-slate-50 flex items-center justify-between shrink-0 border-b border-slate-100 h-[8vh]">
+                            <span class="text-fluid-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                                <i data-lucide="file-text" class="w-[2.5vh] h-[2.5vh]"></i>
                                 ${slide.badge}
                             </span>
-                            
-                            <!-- Audio Button (Conditional Render) -->
                             ${hasAudio ? `
                             <button id="${btnId}" 
-                                class="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all shadow-md active:scale-95 bg-indigo-500 hover:bg-indigo-600 cursor-pointer"
+                                class="w-[6vh] h-[6vh] rounded-full flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 transition-all shadow-md active:scale-95"
                                 onclick="toggleLessonAudio('${slide.audioSrc}', '${btnId}')">
-                                <i data-lucide="play" class="w-5 h-5 md:w-6 md:h-6 text-white ml-1"></i>
+                                <i data-lucide="play" class="w-[2.5vh] h-[2.5vh] text-white ml-0.5"></i>
                             </button>
                             ` : ''}
                         </div>
-
-                        <!-- Korean Text Content (Auto height / padding) -->
-                        <div class="p-6 md:p-10 ${slide.levelColor ? slide.levelColor : 'bg-slate-50'} flex-grow flex items-center justify-center">
-                            <p class="text-lg md:text-2xl font-medium leading-loose md:leading-loose text-slate-800 keep-all text-center">
+                        <div class="p-6 md:p-8 ${slide.levelColor ? slide.levelColor : 'bg-slate-50'} flex-grow flex items-center justify-center text-center overflow-y-auto">
+                            <p class="text-fluid-lg font-medium leading-relaxed text-slate-800 keep-all">
                                 "${slide.koreanText}"
                             </p>
                         </div>
@@ -347,25 +305,20 @@
             }
 
             contentArea.appendChild(container);
-            updateNavigationButtons(); 
+            updateNavigation(); 
             lucide.createIcons();
         }
 
-        // --- Event Listeners ---
         nextBtn.addEventListener('click', async () => {
-            if (!isAudioInitialized) {
-                await initAudio();
-            }
-
+            if (!isAudioInitialized) await initAudio();
             if (currentIndex === slides.length - 1) {
-                playCompletionSound();
+                playSound('complete');
                 window.parent.postMessage({ type: 'lesson_complete' }, '*');
                 nextBtn.disabled = true;
                 nextBtn.innerHTML = `<span>Terminé !</span>`;
                 return;
             }
-
-            playClickSound();
+            playSound('click');
             currentIndex++;
             renderSlide(currentIndex);
             updateProgress();
@@ -373,20 +326,15 @@
 
         prevBtn.addEventListener('click', () => {
              if (currentIndex > 0) {
-                 playBackSound();
                  currentIndex--;
                  renderSlide(currentIndex);
                  updateProgress();
              }
         });
 
-        // --- Initialization ---
         renderSlide(currentIndex);
         updateProgress();
-        lucide.createIcons();
-
         window.toggleLessonAudio = toggleLessonAudio;
-
     </script>
 </body>
 </html>
