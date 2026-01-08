@@ -3,338 +3,518 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Question 1 - Answering Questions</title>
+    <title>TOPIK 말하기 Question 1</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Sans:wght@300;400;500;700&display=swap');
-
+        :root {
+            --primary-color: #2563EB;
+            --secondary-color: #10B981;
+            --bg-color: #F8FAFC;
+            --text-main: #1E293B;
+        }
+        
         body {
             font-family: 'Noto Sans', 'Noto Sans KR', sans-serif;
-            background-color: #f3f4f6;
+            background-color: #1a1a1a;
+            margin: 0;
+            padding: 0;
             overflow: hidden;
-            touch-action: manipulation;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: var(--text-main);
         }
 
-        .slide-enter { animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #app-container {
+            background-color: var(--bg-color);
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
 
-        /* Responsive Fluid Text */
-        .text-fluid-xs { font-size: clamp(0.75rem, 1.5vh, 1rem); }
-        .text-fluid-sm { font-size: clamp(0.875rem, 2vh, 1.25rem); }
-        .text-fluid-base { font-size: clamp(1rem, 2.5vh, 1.5rem); }
-        .text-fluid-lg { font-size: clamp(1.25rem, 3.5vh, 2.25rem); }
-        .text-fluid-xl { font-size: clamp(1.75rem, 5vh, 4rem); }
+        /* Desktop Aspect Ratio 16:9 */
+        @media (min-aspect-ratio: 16/9) {
+            #app-container {
+                width: 100vh;
+                height: 56.25vh;
+                max-width: 177.78vh;
+            }
+        }
+        @media (max-aspect-ratio: 16/9) {
+            #app-container {
+                width: 100vw;
+                height: 56.25vw;
+            }
+        }
+
+        .mobile-mode #app-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            max-height: none;
+        }
+
+        /* Transitions */
+        .fade-enter { opacity: 0; transform: translateY(10px); }
+        .fade-enter-active { opacity: 1; transform: translateY(0); transition: opacity 0.4s, transform 0.4s; }
+        
+        .btn-hover:active { transform: scale(0.95); }
+        
+        /* Audio Player Wave Animation */
+        .playing-wave {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .playing-wave span {
+            display: inline-block;
+            width: 3px;
+            height: 12px;
+            background-color: white;
+            animation: wave 1s infinite ease-in-out;
+            margin: 0 1px;
+            border-radius: 2px;
+        }
+        .playing-wave span:nth-child(2) { animation-delay: 0.1s; }
+        .playing-wave span:nth-child(3) { animation-delay: 0.2s; }
+        
+        @keyframes wave {
+            0%, 100% { height: 12px; }
+            50% { height: 20px; }
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .korean-text { font-family: 'Noto Sans KR', sans-serif; word-break: keep-all; }
+        
+        /* Custom Card Style for Process Flow */
+        .process-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        /* Hide scrollbar for cleaner look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
-<body class="h-screen w-screen flex items-center justify-center bg-slate-100 text-slate-800 md:p-4">
+<body>
 
-    <!-- Main Container -->
-    <div id="app-container" class="relative w-full h-full bg-white md:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-w-[1920px] mx-auto">
-        
-        <!-- Header / Progress -->
-        <div class="h-1.5 w-full bg-slate-100 shrink-0">
-            <div id="progress-bar" class="h-full bg-indigo-500 transition-all duration-500 ease-out" style="width: 0%"></div>
-        </div>
+    <div id="app-container" class="w-full h-full relative">
+        <!-- Header -->
+        <header class="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10">
+            <div class="flex items-center gap-2 text-blue-600 font-bold">
+                <i class="ph-fill ph-chat-circle-text text-xl"></i>
+                <span class="text-sm tracking-wide">TOPIK 말하기</span>
+            </div>
+            <div class="text-xs text-gray-400 font-medium">문항 1</div>
+        </header>
 
-        <!-- Content Area -->
-        <main id="content-area" class="flex-grow flex flex-col items-center justify-center p-6 md:p-10 relative overflow-hidden">
-            <!-- Dynamic Content -->
+        <!-- Main Content Area -->
+        <main id="main-content" class="flex-1 relative w-full mx-auto overflow-hidden bg-white">
+            <!-- Content Injected Here -->
         </main>
 
         <!-- Footer / Navigation -->
-        <footer class="h-[10vh] max-h-20 w-full bg-white border-t border-slate-100 flex items-center justify-between px-6 md:px-10 z-10 shrink-0">
-            <button id="prev-btn" class="flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-medium transition-colors opacity-0 pointer-events-none">
-                <i data-lucide="arrow-left" class="w-[2.5vh] h-[2.5vh]"></i>
-                <span class="hidden md:inline text-fluid-sm">Précédent</span>
+        <footer id="footer-nav" class="h-16 bg-white border-t border-gray-200 flex items-center justify-between px-4 sm:px-8 shrink-0 z-10 relative">
+            <!-- Progress Bar -->
+            <div class="absolute top-0 left-0 h-1 bg-gray-100 w-full">
+                <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
+            </div>
+
+            <button id="prev-btn" onclick="prevSlide()" class="btn-hover flex items-center gap-2 text-gray-500 font-medium px-4 py-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 transition-colors" disabled>
+                <i class="ph-bold ph-arrow-left"></i>
+                <span class="hidden sm:inline">Précédent</span>
             </button>
 
-            <div class="text-xs md:text-sm text-slate-300 font-medium tracking-widest absolute left-1/2 transform -translate-x-1/2 pointer-events-none">CORÉENO</div>
+            <span id="page-indicator" class="text-sm font-semibold text-gray-600 font-mono">1 / 8</span>
 
-            <button id="next-btn" class="group flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-semibold transition-all active:scale-95 shadow-lg shadow-indigo-200 disabled:opacity-50 text-fluid-sm">
-                <span>Suivant</span>
-                <i data-lucide="arrow-right" class="w-[2.5vh] h-[2.5vh] group-hover:translate-x-1 transition-transform"></i>
+            <button id="next-btn" onclick="nextSlide()" class="btn-hover flex items-center gap-2 bg-blue-600 text-white font-medium px-6 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-colors">
+                <span class="hidden sm:inline">Suivant</span>
+                <i class="ph-bold ph-arrow-right"></i>
             </button>
         </footer>
     </div>
 
-    <!-- Hidden Audio Player -->
-    <audio id="lesson-audio" class="hidden"></audio>
-
     <script>
-        // --- Data ---
+        // --- DATA ---
         const slides = [
             {
-                type: 'cover',
+                type: "cover",
                 title: "문항 1 - 질문에 대답하기",
-                subtitle: "Question 1 - Répondre aux questions"
+                subtitle: "Question 1 - Répondre à la question",
+                desc: "",
+                icon: "ph-microphone-stage"
             },
             {
-                type: 'text',
-                content: `
-                    <div class="flex flex-col items-center justify-center h-full w-full gap-[5vh]">
-                        <p class="text-fluid-lg leading-relaxed text-slate-700 text-center max-w-4xl px-4">
-                            La <span class="font-bold text-indigo-600">Question 1</span> consiste à écouter une question et à y répondre. Le sujet porte sur des thèmes simples de la vie quotidienne.
-                        </p>
-                        <div class="flex flex-row gap-[4vw] justify-center items-center w-full">
-                            <div class="bg-indigo-50 px-[4vw] py-[3vh] rounded-3xl flex flex-col items-center gap-2 shadow-sm border border-indigo-100">
-                                <i data-lucide="hourglass" class="text-indigo-500 w-[6vh] h-[6vh]"></i>
-                                <p class="text-fluid-sm text-indigo-400 font-bold uppercase tracking-wider mt-1">Préparation</p>
-                                <p class="text-fluid-xl font-black text-indigo-700 leading-none">20<span class="text-fluid-lg">s</span></p>
-                            </div>
-                            <div class="bg-indigo-50 px-[4vw] py-[3vh] rounded-3xl flex flex-col items-center gap-2 shadow-sm border border-indigo-100">
-                                <i data-lucide="mic" class="text-indigo-500 w-[6vh] h-[6vh]"></i>
-                                <p class="text-fluid-sm text-indigo-400 font-bold uppercase tracking-wider mt-1">Réponse</p>
-                                <p class="text-fluid-xl font-black text-indigo-700 leading-none">30<span class="text-fluid-lg">s</span></p>
-                            </div>
-                        </div>
-                    </div>
-                `
+                type: "split",
+                title: "Aperçu de la Question 1",
+                contentFr: "La question 1 consiste à écouter une question et à y répondre. Les questions portent sur des sujets simples de la vie quotidienne.",
+                visualType: "process",
+                cards: [
+                    { icon: "ph-ear", title: "Écoute", sub: "Question" },
+                    { icon: "ph-timer", title: "Préparation", sub: "20 sec" },
+                    { icon: "ph-microphone", title: "Réponse", sub: "30 sec" }
+                ]
             },
             {
-                type: 'example',
-                title: "Contenu des questions",
-                content: "Les questions portent sur vous-même, vos proches, des objets, votre quotidien, vos expériences passées ou vos projets futurs. Vous devez écouter attentivement pour bien comprendre ce qui est demandé.",
-                audioSrc: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782322/Q_ex_1_vaj6tr.mp3", 
+                type: "split",
+                title: "Comprendre le Sujet",
+                contentFr: "Sujets fréquents : Vous-même, vos proches, le quotidien, expériences passées, projets futurs.<br>Il est crucial de bien comprendre la demande tout en écoutant la question.",
+                visualType: "example",
                 koreanText: "가장 친한 친구가 누구예요? 그 친구에 대해 이야기하세요.",
-                badge: "Exemple de question"
+                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782322/Q_ex_1_vaj6tr.mp3"
             },
             {
-                type: 'example',
-                title: "Stratégie de préparation",
-                content: "Pendant les 20 secondes de préparation, organisez vos idées et planifiez les détails. Le temps étant court, n'écrivez pas de phrases complètes. <span class='font-bold text-indigo-600'>Notez des mots-clés</span> et utilisez-les pour parler.",
-                audioSrc: "", 
-                koreanText: "가장 친한 친구, 민수, 고등학교, 친절하다, 키가 크다",
-                badge: "Mots-clés (Notes)"
+                type: "split",
+                title: "Préparation (20 sec)",
+                contentFr: "Utilisez les 20 secondes pour organiser et résumer ce que vous allez dire. Le temps est trop court pour rédiger un script complet.<br><br><strong>Stratégie :</strong> Notez des mots-clés pour pouvoir parler immédiatement.",
+                visualType: "note",
+                noteTitle: "Mots-clés (Exemple)",
+                koreanText: "가장 친한 친구, 민수, 고등학교, 친절하다, 키가 크다"
             },
             {
-                type: 'example',
-                title: "Conseils de préparation (Débutant)",
-                content: "Visez 2 à 3 phrases correctes en utilisant la grammaire de base. Utilisez vos mots-clés pour construire des phrases simples.",
-                audioSrc: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782323/R_ex_1_1_ef25g9.mp3", 
+                type: "split",
+                title: "Niveau Débutant",
+                contentFr: "Parlez pendant 30 secondes en vous aidant de vos mots-clés.<br><span class='text-blue-600 font-bold'>Astuce :</span> Visez 2 à 3 phrases correctes en respectant la grammaire de base.",
+                visualType: "example",
                 koreanText: "제 가장 친한 친구는 민수예요. 저는 고등학교에서 민수를 만났어요. 민수는 친절하고 키가 커요.",
-                badge: "Exemple de réponse (Débutant)",
-                levelColor: "bg-green-100 text-green-700 border-green-200"
+                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782323/R_ex_1_1_ef25g9.mp3"
             },
             {
-                type: 'example',
-                title: "Conseils de préparation (Intermédiaire)",
-                content: "Entraînez-vous à faire 4 à 5 phrases plus longues en utilisant des propositions subordonnées et des connecteurs. Un vocabulaire varié aide à obtenir un meilleur score.",
-                audioSrc: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782326/R_ex_1_2_chleqe.mp3", 
+                type: "split",
+                title: "Niveau Intermédiaire",
+                contentFr: "<span class='text-green-600 font-bold'>Astuce :</span> Utilisez des phrases complexes et des conjonctions pour construire 4 à 5 phrases plus longues. Varier le vocabulaire aide à obtenir un meilleur score.",
+                visualType: "example",
                 koreanText: "저는 고등학교 때 민수와 같은 반이었어요. 그때는 별로 친하지 않았지만 같은 대학교에 가면서 아주 가까워졌어요. 민수는 친절하고 키도 커서 친구들에게 인기가 많았고 공부도 정말 잘했어요.",
-                badge: "Exemple de réponse (Intermédiaire)",
-                levelColor: "bg-blue-100 text-blue-700 border-blue-200"
+                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782326/R_ex_1_2_chleqe.mp3"
             },
             {
-                type: 'example',
-                title: "Conseils de préparation (Avancé)",
-                content: "Utilisez différents temps et construisez un discours cohérent de plus de 6 phrases. Privilégiez une prononciation naturelle et une structure logique plutôt qu'un vocabulaire trop complexe et artificiel.",
-                audioSrc: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782330/R_ex_1_3_fpyxg8.mp3", 
+                type: "split",
+                title: "Niveau Avancé",
+                contentFr: "<span class='text-purple-600 font-bold'>Astuce :</span> Utilisez divers temps verbaux et construisez un discours cohérent de plus de 6 phrases. La fluidité et la logique priment sur un vocabulaire artificiellement complexe.",
+                visualType: "text-only", 
+                contentList: [
+                    "Variété des temps (passé/présent)",
+                    "Structure logique (Cause/Effet)",
+                    "Prononciation naturelle"
+                ]
+            },
+            {
+                type: "full-example",
+                title: "Exemple Avancé",
+                contentFr: "Écoutez une réponse de niveau avancé.",
                 koreanText: "저는 고등학교 1학년 때 학교에 아는 사람이 많지 않아서 주로 혼자 시간을 보냈어요. 그런데 같은 반에 있던 민수라는 친구가 저에게 먼저 말을 걸어줬어요. 우리는 같이 점심도 먹고 농구도 자주 하면서 점점 더 가까워졌어요. 민수는 키가 커서 농구를 정말 잘했기 때문에 다른 친구들에게도 인기가 많았어요. 저는 민수 덕분에 많은 친구들을 사귈 수 있었고, 어른이 된 지금도 민수는 제 가장 친한 친구예요.",
-                badge: "Exemple de réponse (Avancé)",
-                levelColor: "bg-purple-100 text-purple-700 border-purple-200"
+                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782330/R_ex_1_3_fpyxg8.mp3"
             },
             {
-                type: 'outro',
-                content: `
-                    <div class="flex flex-col items-center justify-center h-full gap-[3vh] px-4">
-                        <div class="p-[3vh] bg-indigo-50 rounded-full shadow-sm">
-                            <i data-lucide="check-circle-2" class="w-[8vh] h-[8vh] text-indigo-600"></i>
-                        </div>
-                        <p class="text-fluid-lg text-slate-600 leading-relaxed text-center max-w-4xl">
-                            Maintenant, analysons ensemble les différentes questions de la <br><span class="font-bold text-indigo-600">&lt;Question 1&gt;</span> dans l'<span class="font-bold text-indigo-600">&lt;Exercice 1&gt;</span> !
-                        </p>
-                    </div>
-                `
+                type: "outro",
+                title: "Terminé !",
+                contentFr: "Vous avez compris la structure de la Question 1.<br>Analysons maintenant diverses questions dans l'Exercice 1 !",
+                icon: "ph-check-circle"
             }
         ];
 
+        // --- STATE ---
         let currentIndex = 0;
-        let isAudioInitialized = false;
+        let currentAudio = null;
+        let isMobile = false;
+        let lessonCompleted = false; 
+        
+        let clickSynth, endSynth;
 
-        const contentArea = document.getElementById('content-area');
-        const nextBtn = document.getElementById('next-btn');
-        const prevBtn = document.getElementById('prev-btn');
+        // --- DOM ELEMENTS ---
+        const mainContent = document.getElementById('main-content');
         const progressBar = document.getElementById('progress-bar');
-        const audioEl = document.getElementById('lesson-audio');
+        const pageIndicator = document.getElementById('page-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const appContainer = document.getElementById('app-container');
 
+        // --- INIT AUDIO CONTEXT ---
         async function initAudio() {
-            if (isAudioInitialized) return;
             await Tone.start();
-            isAudioInitialized = true;
-        }
-
-        function playSound(type) {
-            if (!isAudioInitialized) return;
-            const synth = new Tone.MembraneSynth().toDestination();
-            const melodySynth = new Tone.Synth().toDestination();
-
-            switch(type) {
-                case 'click': synth.triggerAttackRelease("C2", "32n"); break;
-                case 'complete': 
-                    const now = Tone.now();
-                    melodySynth.triggerAttackRelease("C5", "8n", now);
-                    melodySynth.triggerAttackRelease("E5", "8n", now + 0.1);
-                    melodySynth.triggerAttackRelease("G5", "8n", now + 0.2);
-                    melodySynth.triggerAttackRelease("C6", "4n", now + 0.3);
-                    break;
+            if (!clickSynth) {
+                clickSynth = new Tone.MembraneSynth({
+                    pitchDecay: 0.008,
+                    octaves: 2,
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.1 }
+                }).toDestination();
+                clickSynth.volume.value = -10;
+            }
+            if (!endSynth) {
+                endSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+                endSynth.volume.value = -5;
             }
         }
 
-        function toggleLessonAudio(src, btnId) {
-            const btn = document.getElementById(btnId);
-            if (!src) return;
-
-            if (audioEl.src !== src) {
-                audioEl.src = src;
-                audioEl.load();
-            }
-
-            if (audioEl.paused) {
-                audioEl.play();
-                btn.innerHTML = `<i data-lucide="pause" class="w-full h-full text-white p-2"></i>`;
-                lucide.createIcons();
+        // --- RESIZE LOGIC ---
+        function handleResize() {
+            const aspect = window.innerWidth / window.innerHeight;
+            isMobile = aspect < 1; 
+            
+            if (isMobile) {
+                document.body.classList.add('mobile-mode');
+                appContainer.style.width = '100vw';
+                appContainer.style.height = '100vh';
             } else {
-                audioEl.pause();
-                btn.innerHTML = `<i data-lucide="play" class="w-full h-full text-white p-2 ml-1"></i>`;
-                lucide.createIcons();
+                document.body.classList.remove('mobile-mode');
+                appContainer.style.width = '';
+                appContainer.style.height = '';
+            }
+            renderSlide(currentIndex);
+        }
+
+        window.addEventListener('resize', handleResize);
+        setTimeout(() => handleResize(), 100);
+
+
+        // --- AUDIO LOGIC ---
+        function playAudio(url, btnId) {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                resetAudioButtons();
             }
 
-            audioEl.onended = () => {
-                btn.innerHTML = `<i data-lucide="play" class="w-full h-full text-white p-2 ml-1"></i>`;
-                lucide.createIcons();
+            if (currentAudio && currentAudio.src === url && !currentAudio.paused) {
+                currentAudio = null;
+                return;
+            }
+
+            const btn = document.getElementById(btnId);
+            const audio = new Audio(url);
+            currentAudio = audio;
+
+            btn.classList.remove('bg-gray-100', 'text-gray-600');
+            btn.classList.add('bg-blue-600', 'text-white');
+            btn.innerHTML = `
+                <div class="playing-wave">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+
+            audio.play().catch(e => console.error("Audio play failed", e));
+
+            audio.onended = () => {
+                resetAudioButtons();
+                currentAudio = null;
             };
         }
 
-        function updateProgress() {
-            progressBar.style.width = `${((currentIndex + 1) / slides.length) * 100}%`;
+        function resetAudioButtons() {
+            document.querySelectorAll('.audio-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-gray-100', 'text-gray-600');
+                btn.innerHTML = `<i class="ph-fill ph-speaker-high text-2xl"></i>`;
+            });
         }
 
-        function updateNavigation() {
-            if (currentIndex === 0) prevBtn.classList.add('opacity-0', 'pointer-events-none');
-            else prevBtn.classList.remove('opacity-0', 'pointer-events-none');
-
-            if (currentIndex === slides.length - 1) {
-                 nextBtn.innerHTML = `<span>Terminer</span> <i data-lucide="check" class="w-[2.5vh] h-[2.5vh]"></i>`;
-                 nextBtn.className = "group flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-full font-semibold transition-all shadow-lg shadow-green-200 text-fluid-sm";
-            } else {
-                 nextBtn.innerHTML = `<span>Suivant</span> <i data-lucide="arrow-right" class="w-[2.5vh] h-[2.5vh] group-hover:translate-x-1 transition-transform"></i>`;
-                 nextBtn.className = "group flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-semibold transition-all active:scale-95 shadow-lg shadow-indigo-200 text-fluid-sm";
-            }
-        }
-
+        // --- RENDER LOGIC ---
         function renderSlide(index) {
-            audioEl.pause();
-            audioEl.currentTime = 0;
-
             const slide = slides[index];
-            contentArea.innerHTML = ''; 
+            
+            // Layout Strategy:
+            // 1. Group everything in a wrapper (max-w-3xl) with gap-8.
+            // 2. Use flex-col justify-center on the parent to center the wrapper vertically.
+            
+            let html = '';
+            
+            // Main Parent: Full height, flex center, scrolling enabled
+            html += `<div class="w-full h-full flex flex-col justify-center items-center p-6 sm:p-8 overflow-y-auto no-scrollbar fade-enter-active bg-white">`;
+            
+            // Content Wrapper: Groups all elements closely
+            html += `<div class="w-full max-w-2xl flex flex-col gap-8 mx-auto z-10">`;
 
-            const container = document.createElement('div');
-            container.className = 'w-full h-full flex flex-col items-center slide-enter';
-
-            // Justify-center for cover to match Exercise 1
             if (slide.type === 'cover') {
-                container.classList.add('justify-center', 'gap-[4vh]');
-                container.innerHTML = `
-                    <div class="flex flex-col items-center justify-center gap-[4vh] h-full pb-[10vh]">
-                        <div class="p-[3vh] bg-indigo-50 rounded-full shrink-0 shadow-sm">
-                            <i data-lucide="mic-2" class="w-[10vh] h-[10vh] text-indigo-600"></i>
+                html += `
+                    <div class="flex flex-col items-center justify-center text-center space-y-6 py-4">
+                        <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mb-2 shadow-sm">
+                            <i class="ph ${slide.icon} text-5xl"></i>
                         </div>
-                        <div class="text-center">
-                            <h1 class="text-fluid-xl font-black text-center text-slate-800 mb-[2vh] leading-tight tracking-tight">${slide.title}</h1>
-                            <p class="text-fluid-lg text-slate-500 font-medium text-center">${slide.subtitle}</p>
+                        <div>
+                            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 leading-tight break-keep mb-2">${slide.title}</h1>
+                            <h2 class="text-xl sm:text-2xl text-blue-600 font-medium">${slide.subtitle}</h2>
                         </div>
+                        ${slide.desc ? `<p class="text-gray-500 mt-2">${slide.desc}</p>` : ''}
                     </div>
                 `;
-                nextBtn.innerHTML = `<span>Commencer</span> <i data-lucide="arrow-right" class="w-[2.5vh] h-[2.5vh]"></i>`;
             } 
-            else if (slide.type === 'text' || slide.type === 'outro') {
-                container.classList.add('justify-evenly');
-                if (slide.title) {
-                    container.innerHTML = `<h2 class="text-fluid-xl font-bold text-slate-800 text-center">${slide.title}</h2>`;
-                }
-                container.innerHTML += `<div class="w-full flex-grow flex flex-col justify-center">${slide.content}</div>`;
+            else if (slide.type === 'outro') {
+                html += `
+                    <div class="flex flex-col items-center justify-center text-center space-y-8 py-4">
+                         <div class="w-28 h-28 bg-green-50 rounded-full flex items-center justify-center text-green-600 mb-4 scale-110 shadow-sm">
+                            <i class="ph ${slide.icon} text-6xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-800">${slide.title}</h1>
+                        <p class="text-xl text-gray-600 leading-relaxed max-w-md mx-auto">${slide.contentFr}</p>
+                    </div>
+                `;
             }
-            else if (slide.type === 'example') {
-                container.classList.add('justify-between'); 
-                const btnId = `play-btn-${index}`;
-                const hasAudio = slide.audioSrc && slide.audioSrc.length > 0;
-                
-                // Top Title
-                if (slide.title) {
-                    container.innerHTML += `<h2 class="text-fluid-lg font-bold text-slate-800 text-center mb-[2vh] shrink-0">${slide.title}</h2>`;
-                } else {
-                    container.innerHTML += `<div class="h-[2vh] shrink-0"></div>`; 
-                }
-
-                // Middle Content (Instruction)
-                container.innerHTML += `
-                    <div class="flex-grow flex items-center justify-center px-4 mb-[2vh]">
-                        <p class="text-fluid-base text-slate-600 text-center leading-relaxed max-w-5xl">
-                            ${slide.content}
+            else {
+                // UNIFIED LAYOUT for Split & Full-Example
+                // Top: Description
+                html += `
+                    <div class="flex flex-col gap-3 text-center sm:text-left">
+                        <h2 class="text-2xl font-bold text-gray-800">${slide.title}</h2>
+                        <p class="text-gray-600 text-lg leading-relaxed break-keep">
+                            ${slide.contentFr}
                         </p>
                     </div>
                 `;
 
-                // Bottom Content (Card)
-                // Using flex-grow-0 to keep it from taking too much space, max-height relative to vh
-                container.innerHTML += `
-                    <div class="w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col shrink-0 h-[45vh] md:h-[50vh] mb-[2vh]">
-                        <div class="px-6 py-3 bg-slate-50 flex items-center justify-between shrink-0 border-b border-slate-100 h-[8vh]">
-                            <span class="text-fluid-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                                <i data-lucide="file-text" class="w-[2.5vh] h-[2.5vh]"></i>
-                                ${slide.badge}
-                            </span>
-                            ${hasAudio ? `
-                            <button id="${btnId}" 
-                                class="w-[6vh] h-[6vh] rounded-full flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 transition-all shadow-md active:scale-95"
-                                onclick="toggleLessonAudio('${slide.audioSrc}', '${btnId}')">
-                                <i data-lucide="play" class="w-[2.5vh] h-[2.5vh] text-white ml-0.5"></i>
-                            </button>
+                // Bottom: Visual/Audio/Text
+                let bottomContent = '';
+
+                // Process Cards
+                if (slide.visualType === 'process') {
+                    bottomContent = `
+                        <div class="flex flex-col sm:flex-row gap-4 w-full justify-center mt-2">
+                            ${slide.cards.map(card => `
+                                <div class="process-card py-4 px-2">
+                                    <i class="ph-fill ${card.icon} text-3xl text-blue-500 mb-2"></i>
+                                    <div class="font-bold text-gray-800 text-lg leading-tight">${card.title}</div>
+                                    <div class="text-sm text-gray-500 font-medium">${card.sub}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } 
+                // Note style
+                else if (slide.visualType === 'note') {
+                    bottomContent = `
+                        <div class="w-full flex justify-center mt-2">
+                            <div class="relative bg-yellow-50 p-6 rounded-xl shadow-sm border border-yellow-200 w-full max-w-lg transform -rotate-1">
+                                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 w-24 h-4 bg-yellow-200/60 rounded-sm"></div>
+                                <h3 class="text-xs font-bold text-yellow-800 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <i class="ph-fill ph-note-pencil"></i> ${slide.noteTitle}
+                                </h3>
+                                <p class="korean-text text-xl font-medium text-gray-800 leading-relaxed text-center">
+                                    ${slide.koreanText}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                }
+                // Text List
+                else if (slide.visualType === 'text-only') {
+                     bottomContent = `
+                        <div class="w-full flex justify-center mt-2">
+                            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 w-full">
+                                <ul class="space-y-4">
+                                    ${slide.contentList.map(item => `
+                                        <li class="flex items-start gap-3 text-gray-700 font-medium text-lg">
+                                            <i class="ph-fill ph-check-circle text-purple-500 text-xl mt-1 shrink-0"></i>
+                                            <span>${item}</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                     `;
+                }
+                // Examples (Audio + Box)
+                else if (slide.visualType === 'example' || slide.type === 'full-example') {
+                    bottomContent = `
+                        <div class="flex flex-col gap-6 w-full items-center mt-2">
+                            ${slide.audioUrl ? `
+                                <button id="audio-${index}" onclick="playAudio('${slide.audioUrl}', 'audio-${index}')" 
+                                    class="audio-btn w-16 h-16 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all flex items-center justify-center shadow-md transform active:scale-95">
+                                    <i class="ph-fill ph-speaker-high text-2xl"></i>
+                                </button>
                             ` : ''}
+                            <div class="${slide.type === 'full-example' ? 'bg-gray-50 border-gray-200' : 'highlight-box'} p-6 rounded-lg shadow-sm border w-full text-center">
+                                <p class="korean-text text-lg text-gray-800 leading-loose break-keep">
+                                    ${slide.koreanText}
+                                </p>
+                            </div>
                         </div>
-                        <div class="p-6 md:p-8 ${slide.levelColor ? slide.levelColor : 'bg-slate-50'} flex-grow flex items-center justify-center text-center overflow-y-auto">
-                            <p class="text-fluid-lg font-medium leading-relaxed text-slate-800 keep-all">
-                                "${slide.koreanText}"
-                            </p>
-                        </div>
-                    </div>
-                `;
+                    `;
+                }
+
+                html += bottomContent;
             }
 
-            contentArea.appendChild(container);
-            updateNavigation(); 
-            lucide.createIcons();
+            html += `</div></div>`;
+            mainContent.innerHTML = html;
+            updateNav();
         }
 
-        nextBtn.addEventListener('click', async () => {
-            if (!isAudioInitialized) await initAudio();
+        // --- NAVIGATION LOGIC ---
+        function updateNav() {
+            const progress = ((currentIndex + 1) / slides.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            pageIndicator.textContent = `${currentIndex + 1} / ${slides.length}`;
+
+            prevBtn.disabled = currentIndex === 0;
+            
             if (currentIndex === slides.length - 1) {
-                playSound('complete');
-                window.parent.postMessage({ type: 'lesson_complete' }, '*');
-                nextBtn.disabled = true;
-                nextBtn.innerHTML = `<span>Terminé !</span>`;
-                return;
+                nextBtn.style.display = 'none'; 
+                if (!lessonCompleted) {
+                    completeLesson();
+                    lessonCompleted = true;
+                }
+            } else {
+                nextBtn.style.display = 'flex';
+                nextBtn.innerHTML = `<span class="hidden sm:inline">Suivant</span> <i class="ph-bold ph-arrow-right"></i>`;
+                lessonCompleted = false; 
             }
-            playSound('click');
-            currentIndex++;
-            renderSlide(currentIndex);
-            updateProgress();
-        });
+        }
 
-        prevBtn.addEventListener('click', () => {
-             if (currentIndex > 0) {
-                 currentIndex--;
-                 renderSlide(currentIndex);
-                 updateProgress();
-             }
-        });
+        async function nextSlide() {
+            await initAudio(); 
+            if (clickSynth) clickSynth.triggerAttackRelease("C2", "32n");
+            if (currentIndex < slides.length - 1) {
+                currentIndex++;
+                renderSlide(currentIndex);
+            }
+        }
 
-        renderSlide(currentIndex);
-        updateProgress();
-        window.toggleLessonAudio = toggleLessonAudio;
+        async function prevSlide() {
+            await initAudio();
+            if (clickSynth) clickSynth.triggerAttackRelease("C2", "32n");
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderSlide(currentIndex);
+            }
+        }
+
+        function completeLesson() {
+            if (endSynth) {
+                endSynth.triggerAttackRelease(["C5", "E5", "G5"], "8n");
+            }
+            console.log("Lesson Complete - PostMessage Sent");
+            window.parent.postMessage({ type: 'lesson_complete' }, '*');
+        }
+
+        // --- INIT ---
+        renderSlide(0);
+
     </script>
 </body>
 </html>
