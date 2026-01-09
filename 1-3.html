@@ -18,7 +18,7 @@
         
         body {
             font-family: 'Noto Sans', 'Noto Sans KR', sans-serif;
-            background-color: #1a1a1a;
+            background-color: var(--bg-color); /* Matches container */
             margin: 0;
             padding: 0;
             overflow: hidden;
@@ -32,19 +32,13 @@
         #app-container {
             background-color: var(--bg-color);
             position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            /* Removed fixed aspect ratio constraints to fit iframe perfectly */
+            width: 100%;
+            height: 100%;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
-
-        @media (min-aspect-ratio: 16/9) {
-            #app-container { width: 100vh; height: 56.25vh; max-width: 177.78vh; }
-        }
-        @media (max-aspect-ratio: 16/9) {
-            #app-container { width: 100vw; height: 56.25vw; }
-        }
-        .mobile-mode #app-container { width: 100vw; height: 100vh; max-width: none; max-height: none; }
 
         .fade-enter-active { opacity: 1; transition: opacity 0.3s ease-in-out; }
         .fade-enter { opacity: 0; }
@@ -74,7 +68,7 @@
 </head>
 <body>
 
-    <div id="app-container" class="w-full h-full relative">
+    <div id="app-container">
         <!-- Header -->
         <header class="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10">
             <div class="flex items-center gap-2 text-blue-600 font-bold">
@@ -162,16 +156,8 @@
                 title: "Question 1",
                 instructionFr: "Écoutez et écrivez les détails. Séparez-les par des virgules (,).",
                 audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782322/Q_ex_1_vaj6tr.mp3",
-                aiSystemPrompt: `“가장 친한 친구”에 대한 스피치 메모입니다. 응답은 세 부분으로 나뉘며 각각 <평가 점수>, <평가 설명>, <Français> 태그를 사용하십시오.
-<평가 점수>는 N/9점 형태로 출력.
-인물 묘사와 연관성이 없는 키워드를 사용한 경우 감점하시오.
-구체적이지 않다거나 특정 내용이 들어있지 않는 것은 감점 대상이 아님.
-메모 내용에 대한 가치 평가는 하지 않습니다.
-맞춤법, 띄어쓰기, 문법이 정확하지 않은 경우 최대 8점.
-프랑스어로 작성한 경우 한국어로 번역해 평가. 이 경우 최대 7점.
-키워드 개수가 3-6개를 벗어나는 경우 약간 감점 가능.
-<평가 설명>에서는 감점 요인을 3문장 이내로, 쉽고 직관적으로 작성합니다. 대안을 제시하는 것은 가급적 자제.
-<Français> 란에는 "평가 설명"란에 작성한 내용을 프랑스어로 번역합니다.`
+                // Fixed SyntaxError: Replaced double quotes with backticks
+                aiSystemPrompt: `“친한 친구”에 대한 간략하고 주관적인 키워드 노트입니다. 응답은 세 부분으로 나뉘며 각각 <평가 점수>, <평가 설명>, <Français> 태그를 사용하십시오. <평가 점수>는 감점 요인에 해당하는 것이 없으면 9/9점입니다. 맞춤법, 띄어쓰기, 문법이 정확하지 않은 경우 개당 1점 감점. 프랑스어로 작성한 경우 한국어로 번역해 평가하고 2점 감점. 키워드 개수가 4-6개를 크게 벗어나는 경우 1점 감점. 내용이 부족하다, 주관적이다는 절대 감점 요인이 될 수 없습니다. <평가 설명>에서는 평가 점수가 감점된 원인을 3문장 이내로 쉽고 직관적으로 작성합니다.  주관적 평가 (-했으면 좋았겠다 등)은 사용하지 않습니다. 감점 요인이 없는 경우 평가 설명은 공란으로 출력합니다. <Français> "평가 설명"란의 내용을 프랑스어로 번역합니다.`
             },
             {
                 type: "example",
@@ -193,15 +179,11 @@
                 title: "Question 2",
                 instructionFr: "Écoutez et écrivez les détails. Séparez-les par des virgules (,).",
                 audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785142/Q_ex_2_oi4b89.mp3",
-                aiSystemPrompt: `“가고싶은 여행지”에 대한 스피치 메모입니다. 응답은 <평가 점수>, <평가 설명>, <Français> 규칙에 맞게 출력하십시오.
-<평가 점수>는 N/9점 형태로 출력.
-여행지에 대한 설명이나 여행지에서 하고 싶은 일 등과 전혀 연관을 찾을 수 없는 단어를 사용한 경우에만 감점하시오.
-구체적이지 않아도 여행과 일부 연관성을 찾을 수만 있으면 만점 가능.
-맞춤법, 띄어쓰기, 문법이 정확하지 않은 경우 최대 8점.
-프랑스어로 작성한 경우 한국어로 번역해 평가. 이 경우 최대 7점.
-키워드 개수가 3-6개를 벗어나는 경우 약간 감점 가능.
-<평가 설명>에서는 감점 요인을 3문장 이내로, 쉽고 직관적으로 작성합니다. 대안을 제시하는 것은 가급적 자제.
-<Français> 란에는 "평가 설명"란에 작성한 내용을 프랑스어로 번역합니다.`
+                aiSystemPrompt: `“가고싶은 여행지”에 대한 간략하고 주관적인 키워드 노트입니다. 응답은 세 부분으로 나뉘며 각각 <평가 점수>, <평가 설명>, <Français> 태그를 사용하십시오.
+<평가 점수>는 감점 요인에 해당하는 것이 없으면 9/9점입니다.
+맞춤법, 띄어쓰기, 문법이 정확하지 않은 경우 개당 1점 감점. 프랑스어로 작성한 경우 한국어로 번역해 평가하고 2점 감점. 키워드 개수가 4-6개를 크게 벗어나는 경우 1점 감점. 정보의 부족, 주관적인 평가 등은 절대 감점 요인이 될 수 없습니다.
+<평가 설명>에서는 평가 점수가 감점된 원인을 3문장 이내로 쉽고 직관적으로 작성합니다.  주관적 평가 (-했으면 좋았겠다 등)은 사용하지 않습니다. 감점 요인이 없는 경우 평가 설명은 공란으로 출력합니다.
+<Français> "평가 설명"란의 내용을 프랑스어로 번역합니다.`
             },
             {
                 type: "example",
@@ -220,7 +202,7 @@
             {
                 type: "outro",
                 title: "Terminé !",
-                content: "C'est tout pour aujourd'hui ! Essayez d'autres questions dans l'Exercice 3 !",
+                content: "C'est tout pour aujourd'hui ! Essayez d'autres questions dans l'<Exercice 3> !",
                 icon: "ph-star"
             }
         ];
@@ -469,8 +451,8 @@
                             </div>
                         </div>
 
-                        <!-- Input Area: flex-grow to use available space -->
-                        <div class="relative flex-grow min-h-[140px] flex flex-col">
+                        <!-- Input Area: flex-grow with max-height constraint -->
+                        <div class="relative w-full flex-1 min-h-[100px] max-h-[300px]">
                             <textarea id="user-input" disabled 
                                 class="w-full h-full p-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 outline-none resize-none korean-text text-lg disabled:bg-gray-50 disabled:text-gray-400 transition-all placeholder-gray-300"
                                 placeholder="Ecrivez des mots-clés ici..."></textarea>
