@@ -92,7 +92,7 @@
 
     <div id="app-container">
         <!-- Header -->
-        <header class="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10">
+        <header class="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10 relative">
             <div class="flex items-center gap-2 text-blue-600 font-bold">
                 <i class="ph-fill ph-chat-circle-text text-xl"></i>
                 <span class="text-sm tracking-wide">TOPIK 말하기</span>
@@ -101,12 +101,14 @@
         </header>
 
         <!-- Main Content Area -->
-        <main id="main-content" class="flex-1 w-full mx-auto overflow-hidden relative flex flex-col">
+        <!-- Added z-0 to ensure it stays below footer -->
+        <main id="main-content" class="flex-1 w-full mx-auto overflow-hidden relative flex flex-col z-0">
             <!-- Content Injected Here -->
         </main>
 
         <!-- Footer / Navigation -->
-        <footer id="footer-nav" class="h-16 bg-white border-t border-gray-200 flex items-center justify-between px-4 sm:px-8 shrink-0 z-10 relative">
+        <!-- Increased z-index to 50 to prevent overlapping issues -->
+        <footer id="footer-nav" class="h-16 bg-white border-t border-gray-200 flex items-center justify-between px-4 sm:px-8 shrink-0 z-50 relative">
             <div class="absolute top-0 left-0 h-1 bg-gray-100 w-full">
                 <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
             </div>
@@ -219,14 +221,18 @@
 
         // --- AUDIO ---
         async function initAudio() {
-            await Tone.start();
-            if (!clickSynth) {
-                clickSynth = new Tone.MembraneSynth({ pitchDecay: 0.008, octaves: 2, oscillator: { type: "sine" }, envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.1 } }).toDestination();
-                clickSynth.volume.value = -10;
-            }
-            if (!endSynth) {
-                endSynth = new Tone.PolySynth(Tone.Synth).toDestination();
-                endSynth.volume.value = -5;
+            try {
+                await Tone.start();
+                if (!clickSynth) {
+                    clickSynth = new Tone.MembraneSynth({ pitchDecay: 0.008, octaves: 2, oscillator: { type: "sine" }, envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.1 } }).toDestination();
+                    clickSynth.volume.value = -10;
+                }
+                if (!endSynth) {
+                    endSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+                    endSynth.volume.value = -5;
+                }
+            } catch (e) {
+                console.warn("Audio Context Start Failed", e);
             }
         }
 
@@ -262,14 +268,9 @@
         function renderSlide(index) {
             const slide = slides[index];
             
-            // KEY CHANGE: Removed 'h-full' from inner wrapper.
-            // Using 'justify-center' on the outer flex container to center the inner block.
-            // The inner block uses 'max-h-full' to respect boundaries but shrink if needed.
-            
             let html = `<div class="w-full h-full flex flex-col justify-center items-center p-4 sm:p-6 fade-enter-active bg-white">`;
             
-            // Inner Wrapper: Groups everything together. 
-            // Removed gap-[2vh] in favor of flex shrinking logic or smaller fixed gaps to keep items close.
+            // Inner Wrapper with centralized layout logic
             html += `<div class="w-full max-w-4xl flex flex-col gap-4 max-h-full justify-center">`;
 
             if (slide.type === 'cover') {
@@ -298,8 +299,7 @@
                 `;
             }
             else {
-                // UNIFIED LAYOUT for Content Slides
-                // Top: Description (Shrinkable)
+                // Top: Description
                 html += `
                     <div class="flex flex-col gap-2 text-center sm:text-left shrink-0">
                         <h2 class="txt-title font-bold text-gray-800 leading-tight">${slide.title}</h2>
@@ -309,9 +309,7 @@
                     </div>
                 `;
 
-                // Bottom: Visual/Audio/Text
-                // 'min-h-0' and 'shrink' allows this container to reduce size if screen is short
-                // Removed 'flex-1' to prevent forced spacing.
+                // Bottom: Flexible Content
                 let bottomContent = '';
 
                 // Process Cards
@@ -409,9 +407,15 @@
             }
         }
 
+        // UPDATED: Async navigation with try/catch to prevent blocking
         async function nextSlide() {
-            await initAudio(); 
-            if (clickSynth) clickSynth.triggerAttackRelease("C2", "32n");
+            try {
+                await initAudio();
+                if (clickSynth) clickSynth.triggerAttackRelease("C2", "32n");
+            } catch (e) {
+                console.log("Audio init skipped");
+            }
+            
             if (currentIndex < slides.length - 1) {
                 currentIndex++;
                 renderSlide(currentIndex);
@@ -419,8 +423,13 @@
         }
 
         async function prevSlide() {
-            await initAudio();
-            if (clickSynth) clickSynth.triggerAttackRelease("C2", "32n");
+            try {
+                await initAudio();
+                if (clickSynth) clickSynth.triggerAttackRelease("C2", "32n");
+            } catch (e) {
+                console.log("Audio init skipped");
+            }
+
             if (currentIndex > 0) {
                 currentIndex--;
                 renderSlide(currentIndex);
