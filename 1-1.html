@@ -101,13 +101,11 @@
         </header>
 
         <!-- Main Content Area -->
-        <!-- Added z-0 to ensure it stays below footer -->
         <main id="main-content" class="flex-1 w-full mx-auto overflow-hidden relative flex flex-col z-0">
             <!-- Content Injected Here -->
         </main>
 
         <!-- Footer / Navigation -->
-        <!-- Increased z-index to 50 to prevent overlapping issues -->
         <footer id="footer-nav" class="h-16 bg-white border-t border-gray-200 flex items-center justify-between px-4 sm:px-8 shrink-0 z-50 relative">
             <div class="absolute top-0 left-0 h-1 bg-gray-100 w-full">
                 <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
@@ -236,22 +234,26 @@
             }
         }
 
-        function playAudio(url, btnId) {
+        // New Helper Function to Stop Audio
+        function stopAudio() {
             if (currentAudio) {
                 currentAudio.pause();
                 currentAudio.currentTime = 0;
-                resetAudioButtons();
-            }
-            if (currentAudio && currentAudio.src === url && !currentAudio.paused) {
                 currentAudio = null;
-                return;
             }
+            resetAudioButtons();
+        }
+
+        function playAudio(url, btnId) {
+            stopAudio(); // Stop any existing audio first
+
             const btn = document.getElementById(btnId);
             const audio = new Audio(url);
             currentAudio = audio;
             btn.classList.remove('bg-gray-100', 'text-gray-600');
             btn.classList.add('bg-blue-600', 'text-white');
             btn.innerHTML = `<div class="playing-wave"><span></span><span></span><span></span></div>`;
+            
             audio.play().catch(e => console.error("Audio play failed", e));
             audio.onended = () => { resetAudioButtons(); currentAudio = null; };
         }
@@ -269,8 +271,6 @@
             const slide = slides[index];
             
             let html = `<div class="w-full h-full flex flex-col justify-center items-center p-4 sm:p-6 fade-enter-active bg-white">`;
-            
-            // Inner Wrapper with centralized layout logic
             html += `<div class="w-full max-w-4xl flex flex-col gap-4 max-h-full justify-center">`;
 
             if (slide.type === 'cover') {
@@ -299,7 +299,6 @@
                 `;
             }
             else {
-                // Top: Description
                 html += `
                     <div class="flex flex-col gap-2 text-center sm:text-left shrink-0">
                         <h2 class="txt-title font-bold text-gray-800 leading-tight">${slide.title}</h2>
@@ -309,10 +308,8 @@
                     </div>
                 `;
 
-                // Bottom: Flexible Content
                 let bottomContent = '';
 
-                // Process Cards
                 if (slide.visualType === 'process') {
                     bottomContent = `
                         <div class="flex flex-col sm:flex-row gap-3 w-full justify-center items-center shrink min-h-0 overflow-hidden">
@@ -326,7 +323,6 @@
                         </div>
                     `;
                 } 
-                // Note style
                 else if (slide.visualType === 'note') {
                     bottomContent = `
                         <div class="w-full flex items-center justify-center shrink min-h-0">
@@ -342,7 +338,6 @@
                         </div>
                     `;
                 }
-                // Text List
                 else if (slide.visualType === 'text-only') {
                      bottomContent = `
                         <div class="w-full flex items-center justify-center shrink min-h-0">
@@ -359,7 +354,6 @@
                         </div>
                      `;
                 }
-                // Examples (Audio + Box)
                 else if (slide.visualType === 'example' || slide.type === 'full-example') {
                     bottomContent = `
                         <div class="flex flex-col gap-3 w-full items-center justify-center shrink min-h-0 overflow-hidden">
@@ -407,8 +401,17 @@
             }
         }
 
-        // UPDATED: Async navigation with try/catch to prevent blocking
+        // --- GLOBAL EVENT LISTENERS FOR AUDIO STOP ---
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) stopAudio();
+        });
+        
+        window.addEventListener('pagehide', stopAudio); // For safer unloading
+
+        // --- PAGE NAV HANDLERS ---
         async function nextSlide() {
+            stopAudio(); // Stop immediately
+            
             try {
                 await initAudio();
                 if (clickSynth) clickSynth.triggerAttackRelease("C2", "32n");
@@ -423,6 +426,8 @@
         }
 
         async function prevSlide() {
+            stopAudio(); // Stop immediately
+
             try {
                 await initAudio();
                 if (clickSynth) clickSynth.triggerAttackRelease("C2", "32n");
