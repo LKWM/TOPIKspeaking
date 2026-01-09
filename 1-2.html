@@ -17,15 +17,17 @@
             --error-color: #EF4444;
         }
         
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Noto Sans', 'Noto Sans KR', sans-serif;
-            background-color: #1a1a1a;
+            background-color: var(--bg-color);
             margin: 0;
             padding: 0;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            overflow: hidden; /* Global scroll lock */
+            width: 100vw;
             height: 100vh;
             color: var(--text-main);
         }
@@ -33,20 +35,13 @@
         #app-container {
             background-color: var(--bg-color);
             position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            /* Full width/height adaptation */
+            width: 100%;
+            height: 100%;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
-
-        /* Aspect Ratio Logic */
-        @media (min-aspect-ratio: 16/9) {
-            #app-container { width: 100vh; height: 56.25vh; max-width: 177.78vh; }
-        }
-        @media (max-aspect-ratio: 16/9) {
-            #app-container { width: 100vw; height: 56.25vw; }
-        }
-        .mobile-mode #app-container { width: 100vw; height: 100vh; max-width: none; max-height: none; }
 
         /* Transitions */
         .fade-enter-active { opacity: 1; transition: opacity 0.3s ease-in-out; }
@@ -85,7 +80,7 @@
         .korean-text { font-family: 'Noto Sans KR', sans-serif; word-break: keep-all; }
         
         .hint-btn {
-            font-size: 0.875rem;
+            font-size: clamp(0.75rem, 2vh, 0.9rem);
             font-weight: 600;
             text-decoration: underline;
             display: inline-flex;
@@ -98,13 +93,19 @@
         /* Custom scrollbar hiding */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Flexible Typography */
+        .txt-title { font-size: clamp(1.25rem, 3.5vh, 2.25rem); }
+        .txt-subtitle { font-size: clamp(1rem, 2.5vh, 1.5rem); }
+        .txt-body { font-size: clamp(0.875rem, 2vh, 1.125rem); }
+        .txt-instruction { font-size: clamp(1rem, 2.5vh, 1.5rem); }
     </style>
 </head>
 <body>
 
-    <div id="app-container" class="w-full h-full relative">
+    <div id="app-container">
         <!-- Header -->
-        <header class="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10">
+        <header class="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10 relative">
             <div class="flex items-center gap-2 text-blue-600 font-bold">
                 <i class="ph-fill ph-chat-circle-text text-xl"></i>
                 <span class="text-sm tracking-wide">TOPIK 말하기</span>
@@ -113,12 +114,12 @@
         </header>
 
         <!-- Main Content -->
-        <main id="main-content" class="flex-1 relative w-full mx-auto overflow-hidden bg-white">
+        <main id="main-content" class="flex-1 w-full mx-auto overflow-hidden relative flex flex-col z-0">
             <!-- Dynamic Content -->
         </main>
 
         <!-- Footer -->
-        <footer id="footer-nav" class="h-16 bg-white border-t border-gray-200 flex items-center justify-between px-4 sm:px-8 shrink-0 z-10 relative">
+        <footer id="footer-nav" class="h-16 bg-white border-t border-gray-200 flex items-center justify-between px-4 sm:px-8 shrink-0 z-50 relative">
             <div class="absolute top-0 left-0 h-1 bg-gray-100 w-full">
                 <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
             </div>
@@ -290,29 +291,32 @@
 
         // --- AUDIO FUNCTIONS ---
         async function initAudio() {
-            await Tone.start();
-            if (!synth) synth = new Tone.MembraneSynth().toDestination();
-            if (!errorSynth) {
-                errorSynth = new Tone.Synth({
-                    oscillator: { type: "sawtooth" },
-                    envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }
-                }).toDestination();
-                errorSynth.volume.value = -5;
-            }
-            if (!correctSynth) {
-                correctSynth = new Tone.Synth({
-                    oscillator: { type: "sine" },
-                    envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.5 }
-                }).toDestination();
-            }
-            if (!endSynth) {
-                endSynth = new Tone.PolySynth(Tone.Synth).toDestination();
-                endSynth.volume.value = -5;
+            try {
+                await Tone.start();
+                if (!synth) synth = new Tone.MembraneSynth().toDestination();
+                if (!errorSynth) {
+                    errorSynth = new Tone.Synth({
+                        oscillator: { type: "sawtooth" },
+                        envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }
+                    }).toDestination();
+                    errorSynth.volume.value = -5;
+                }
+                if (!correctSynth) {
+                    correctSynth = new Tone.Synth({
+                        oscillator: { type: "sine" },
+                        envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.5 }
+                    }).toDestination();
+                }
+                if (!endSynth) {
+                    endSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+                    endSynth.volume.value = -5;
+                }
+            } catch (e) {
+                console.warn("Audio Context init failed", e);
             }
         }
 
         function playAudio(url) {
-            // Stop current if any
             stopAudio();
 
             const btn = document.getElementById('main-audio-btn');
@@ -367,41 +371,42 @@
             }
 
             // Compact layout for quiz to avoid scrolling
-            let html = `<div class="w-full h-full flex flex-col justify-center items-center p-4 sm:p-8 overflow-y-auto no-scrollbar fade-enter-active bg-white">`;
-            html += `<div class="w-full max-w-xl flex flex-col gap-4 mx-auto z-10 text-center items-center">`;
+            // Using Flex center column with max-w wrapper
+            let html = `<div class="w-full h-full flex flex-col justify-center items-center p-4 sm:p-6 fade-enter-active bg-white">`;
+            html += `<div class="w-full max-w-2xl flex flex-col gap-4 max-h-full justify-center text-center items-center">`;
 
             if (slide.type === 'cover') {
                 html += `
-                    <div class="space-y-6 py-4">
-                        <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mb-2 mx-auto shadow-sm">
+                    <div class="flex flex-col items-center justify-center text-center gap-6 shrink-0">
+                        <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 shadow-sm shrink-0">
                             <i class="ph ${slide.icon} text-5xl"></i>
                         </div>
-                        <div>
-                            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 leading-tight break-keep mb-2">${slide.title}</h1>
-                            ${slide.subtitle ? `<h2 class="text-xl sm:text-2xl text-blue-600 font-medium">${slide.subtitle}</h2>` : ''}
+                        <div class="flex flex-col gap-2">
+                            <h1 class="txt-title font-bold text-gray-800 leading-tight break-keep">${slide.title}</h1>
+                            ${slide.subtitle ? `<h2 class="txt-subtitle text-blue-600 font-medium">${slide.subtitle}</h2>` : ''}
                         </div>
                     </div>
                 `;
             } 
             else if (slide.type === 'outro') {
                 html += `
-                     <div class="space-y-8 py-4">
-                         <div class="w-28 h-28 bg-green-50 rounded-full flex items-center justify-center text-green-600 mb-4 scale-110 mx-auto shadow-sm">
+                     <div class="flex flex-col items-center justify-center text-center gap-8 shrink-0">
+                         <div class="w-28 h-28 bg-green-50 rounded-full flex items-center justify-center text-green-600 shadow-sm shrink-0">
                             <i class="ph ${slide.icon} text-6xl"></i>
                         </div>
-                        <h1 class="text-4xl font-bold text-gray-800">${slide.title}</h1>
-                        <p class="text-xl text-gray-600 leading-relaxed max-w-md mx-auto">${slide.content}</p>
+                        <h1 class="txt-title font-bold text-gray-800">${slide.title}</h1>
+                        <p class="txt-subtitle text-gray-600 leading-relaxed max-w-md mx-auto">${slide.content}</p>
                     </div>
                 `;
             }
             else if (slide.type === 'info') {
                 html += `
-                    <div class="space-y-6">
-                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 mx-auto">
+                    <div class="flex flex-col items-center justify-center text-center gap-6 max-w-lg mx-auto shrink-0">
+                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 shrink-0">
                             <i class="ph ${slide.icon} text-4xl"></i>
                         </div>
-                        <h2 class="text-2xl font-bold text-gray-800">${slide.title}</h2>
-                        <p class="text-gray-600 text-lg leading-relaxed break-keep max-w-lg mx-auto">
+                        <h2 class="txt-title font-bold text-gray-800">${slide.title}</h2>
+                        <p class="txt-body text-gray-600 leading-relaxed break-keep">
                             ${slide.content}
                         </p>
                     </div>
@@ -417,22 +422,22 @@
                 }
 
                 html += `
-                    <div class="w-full text-center flex flex-col items-center">
-                        <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 leading-relaxed">${slide.instruction}</h2>
+                    <div class="w-full text-center flex flex-col items-center shrink min-h-0 overflow-hidden">
+                        <h2 class="txt-instruction font-bold text-gray-800 mb-4 leading-relaxed shrink-0">${slide.instruction}</h2>
                         
                         <!-- Audio Button -->
                         <button id="main-audio-btn" onclick="playAudio('${slide.audioUrl}')" 
-                            class="w-20 h-20 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all flex items-center justify-center shadow-md transform active:scale-95 mb-4">
+                            class="w-20 h-20 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all flex items-center justify-center shadow-md transform active:scale-95 mb-4 shrink-0">
                             <i class="ph-fill ph-speaker-high text-4xl"></i>
                         </button>
 
-                        <!-- Hint Area -->
-                        <div id="hint-area" class="w-full max-w-lg mb-6 min-h-[2.5rem] flex flex-col items-center justify-start gap-2">
+                        <!-- Hint Area (Flexible) -->
+                        <div id="hint-area" class="w-full max-w-lg mb-4 min-h-[2.5rem] flex flex-col items-center justify-start gap-2 shrink overflow-y-auto no-scrollbar max-h-32">
                             <!-- Hints injected here -->
                         </div>
 
                         <!-- Options -->
-                        <div class="${optionsLayout} max-w-md mx-auto">
+                        <div class="${optionsLayout} max-w-md mx-auto shrink-0">
                             ${slide.options.map(opt => `
                                 <button onclick="checkAnswer(this, '${opt}')" 
                                     class="option-btn bg-white py-3 px-4 rounded-xl text-lg font-medium text-gray-700 shadow-sm korean-text w-full">
@@ -509,7 +514,7 @@
                 </div>
             `;
 
-            hintArea.innerHTML = `<div class="flex justify-center w-full">${hintButtonsHtml}</div>` + contentHtml;
+            hintArea.innerHTML = `<div class="flex justify-center w-full flex-wrap">${hintButtonsHtml}</div>` + contentHtml;
         }
 
         window.showText = function() {
@@ -528,12 +533,8 @@
             const isMobile = aspect < 1;
             if (isMobile) {
                 document.body.classList.add('mobile-mode');
-                appContainer.style.width = '100vw';
-                appContainer.style.height = '100vh';
             } else {
                 document.body.classList.remove('mobile-mode');
-                appContainer.style.width = '';
-                appContainer.style.height = '';
             }
             renderSlide(currentIndex);
         }
@@ -560,10 +561,18 @@
             }
         }
 
+        // --- GLOBAL EVENT LISTENERS ---
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) stopAudio();
+        });
+        window.addEventListener('pagehide', stopAudio);
+
         async function nextSlide() {
             stopAudio(); 
-            await initAudio();
-            if (synth) synth.triggerAttackRelease("C2", "32n");
+            try {
+                await initAudio();
+                if (synth) synth.triggerAttackRelease("C2", "32n");
+            } catch (e) {}
             if (currentIndex < slides.length - 1) {
                 currentIndex++;
                 renderSlide(currentIndex);
@@ -572,8 +581,10 @@
 
         async function prevSlide() {
             stopAudio(); 
-            await initAudio();
-            if (synth) synth.triggerAttackRelease("C2", "32n");
+            try {
+                await initAudio();
+                if (synth) synth.triggerAttackRelease("C2", "32n");
+            } catch (e) {}
             if (currentIndex > 0) {
                 currentIndex--;
                 renderSlide(currentIndex);
