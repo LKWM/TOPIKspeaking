@@ -18,7 +18,7 @@
         
         body {
             font-family: 'Noto Sans', 'Noto Sans KR', sans-serif;
-            background-color: #1a1a1a;
+            background-color: var(--bg-color); /* Match app bg to avoid black bars */
             margin: 0;
             padding: 0;
             overflow: hidden;
@@ -26,38 +26,19 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            width: 100vw;
             color: var(--text-main);
         }
 
         #app-container {
             background-color: var(--bg-color);
             position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            /* Removed fixed aspect ratio constraints */
+            width: 100%;
+            height: 100%;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-        }
-
-        /* Desktop Aspect Ratio 16:9 */
-        @media (min-aspect-ratio: 16/9) {
-            #app-container {
-                width: 100vh;
-                height: 56.25vh;
-                max-width: 177.78vh;
-            }
-        }
-        @media (max-aspect-ratio: 16/9) {
-            #app-container {
-                width: 100vw;
-                height: 56.25vw;
-            }
-        }
-
-        .mobile-mode #app-container {
-            width: 100vw;
-            height: 100vh;
-            max-width: none;
-            max-height: none;
         }
 
         /* Transitions */
@@ -124,7 +105,7 @@
 </head>
 <body>
 
-    <div id="app-container" class="w-full h-full relative">
+    <div id="app-container">
         <!-- Header -->
         <header class="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10">
             <div class="flex items-center gap-2 text-blue-600 font-bold">
@@ -234,7 +215,7 @@
             {
                 type: "outro",
                 title: "Terminé !",
-                contentFr: "Maintenant, analysons ensemble les différentes à l'exercice 1 !",
+                contentFr: "Maintenant, analysons ensemble les différentes questions qui apparaissent dans la <Question 1> lors de l'<Exercice 1> !",
                 icon: "ph-check-circle"
             }
         ];
@@ -280,12 +261,8 @@
             
             if (isMobile) {
                 document.body.classList.add('mobile-mode');
-                appContainer.style.width = '100vw';
-                appContainer.style.height = '100vh';
             } else {
                 document.body.classList.remove('mobile-mode');
-                appContainer.style.width = '';
-                appContainer.style.height = '';
             }
             renderSlide(currentIndex);
         }
