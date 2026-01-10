@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Exercice 3 - 세부 내용 계획하기 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563EB;
+            --secondary-color: #10B981;
+            --bg-color: #F8FAFC;
+            --text-main: #1E293B;
+        }
+        
+        body {
+            font-family: 'Noto Sans', 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: var(--text-main);
+        }
+
+        #app-container {
+            background-color: var(--bg-color);
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fade-enter-active { opacity: 1; transition: opacity 0.3s ease-in-out; }
+        .fade-enter { opacity: 0; }
+        
+        /* Audio Animation */
+        .playing-wave { display: flex; align-items: center; justify-content: center; gap: 2px; }
+        .playing-wave span {
+            width: 3px; height: 12px; background-color: white;
+            animation: wave 1s infinite ease-in-out; border-radius: 2px;
+        }
+        .playing-wave span:nth-child(2) { animation-delay: 0.1s; }
+        .playing-wave span:nth-child(3) { animation-delay: 0.2s; }
+        @keyframes wave { 0%, 100% { height: 12px; } 50% { height: 20px; } }
+
+        .korean-text { font-family: 'Noto Sans KR', sans-serif; word-break: keep-all; }
+        
+        /* Custom Scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Modal Overlay */
+        #modal-overlay {
+            backdrop-filter: blur(4px);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <!-- Header -->
+        <header class="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10">
+            <div class="flex items-center gap-2 text-blue-600 font-bold">
+                <i class="ph-fill ph-pencil-circle text-xl"></i>
+                <span class="text-sm tracking-wide">Exercice 3</span>
+            </div>
+            <div class="text-xs text-gray-400 font-medium">Planifier les détails 2</div>
+        </header>
+
+        <!-- Main Content -->
+        <main id="main-content" class="flex-1 relative w-full mx-auto overflow-hidden bg-white">
+            <!-- Dynamic Content -->
+        </main>
+
+        <!-- Footer -->
+        <footer id="footer-nav" class="h-16 bg-white border-t border-gray-200 flex items-center justify-between px-4 sm:px-8 shrink-0 z-10 relative">
+            <div class="absolute top-0 left-0 h-1 bg-gray-100 w-full">
+                <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
+            </div>
+
+            <button id="prev-btn" onclick="prevSlide()" class="flex items-center gap-2 text-gray-500 font-medium px-4 py-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 transition-colors" disabled>
+                <i class="ph-bold ph-arrow-left"></i>
+                <span class="hidden sm:inline">Précédent</span>
+            </button>
+
+            <span id="page-indicator" class="text-sm font-semibold text-gray-600 font-mono">1 / 8</span>
+
+            <button id="next-btn" onclick="nextSlide()" class="flex items-center gap-2 bg-blue-600 text-white font-medium px-6 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <span class="hidden sm:inline">Suivant</span>
+                <i class="ph-bold ph-arrow-right"></i>
+            </button>
+        </footer>
+
+        <!-- Evaluation Modal -->
+        <div id="modal-overlay" class="absolute inset-0 z-50 hidden flex items-center justify-center p-4 animate-fade-in">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl h-[85%] flex flex-col overflow-hidden border border-gray-100">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <i class="ph-fill ph-robot text-blue-500"></i> Évaluation de l'IA
+                    </h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="ph-bold ph-x text-xl"></i>
+                    </button>
+                </div>
+                <div class="flex-1 p-6 overflow-y-auto">
+                    <div id="modal-content" class="korean-text text-gray-700 leading-relaxed whitespace-pre-wrap text-lg"></div>
+                </div>
+                <div class="px-6 py-4 border-t border-gray-100 flex justify-end">
+                    <button onclick="closeModal()" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                        Confirmer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONSTANTS ---
+        const CLOVA_API_URL = "https://coreeno.base44.app/api/apps/69021ec9e4512a451556d88d/functions/ClovaStudio";
+        
+        // --- DATA ---
+        const slides = [
+            {
+                type: "cover",
+                title: "Exercice 3 - 세부 내용 계획하기 2",
+                subtitle: "Planifier les détails 2",
+                icon: "ph-note-pencil"
+            },
+            // Q3: Hobbies
+            {
+                type: "practice",
+                title: "Question 3",
+                instructionFr: "Écoutez et écrivez les détails. Séparez-les par des virgules (,).",
+                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785155/Q_ex_3_xoofmk.mp3",
+                systemPrompt: `취미에 대한 스피치 준비 메모입니다. 응답은 <평가 점수>와 <평가 설명> 태그를 사용해 작성하십시오. <평가 점수>는 감점 요인에 해당하는 것이 없으면 9/9점입니다.
+
+맞춤법/띄어쓰기/문법 오류시 개당 1점 감점. 단순히 표현이 어색하다고 해서 감점하지 않습니다. 
+키워드 개수가 4-6개를 벗어나는 경우 개당 1점 감점.
+프랑스어로 작성한 경우 2점 감점.
+주제 (취미)와의 연관성을 전혀 찾을 수 없는 키워드 1개 당 1점 감점. 키워드간의 연관성을 찾지 마시오. 주제와 연결될 수 있으면 감점하지 않습니다.
+위에 명시되지 않은 이유로 감점하지 마시오.
+<평가 설명>에서는 감점 요인을 3문장 이내 짧고 직관적으로 설명합니다. 감점 요인이 없는 경우 평가 설명을 작성하지 않습니다.`
+            },
+            {
+                type: "example",
+                title: "Exemple : Question 3",
+                desc: "En organisant 3 ou 4 des mots-clés suivants dans le bon ordre, vous pouvez les utiliser efficacement dans votre discours.",
+                keywords: [
+                    { kr: "취미", fr: "Loisir" },
+                    { kr: "좋아하는 이유", fr: "Raison" },
+                    { kr: "언제 하는지", fr: "Quand" },
+                    { kr: "언제부터 했는지", fr: "Depuis quand" },
+                    { kr: "누구와 함께 하는지", fr: "Avec qui" },
+                    { kr: "기분이 어떤지", fr: "Sentiment" }
+                ],
+                exampleText: "요리, 맛있는 음식 만들기, 주말마다, 작년부터, 혼자서, 스트레스가 풀린다"
+            },
+            // Q4: Birthday Party
+            {
+                type: "practice",
+                title: "Question 4",
+                instructionFr: "Écoutez et écrivez les détails. Séparez-les par des virgules (,).",
+                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785165/Q_ex_4_warvot.mp3",
+                systemPrompt: `친구의 생일파티 계획에 대한 스피치 준비 메모입니다. 응답은 <평가 점수>와 <평가 설명> 태그를 사용해 작성하십시오. <평가 점수>는 감점 요인에 해당하는 것이 없으면 9/9점입니다.
+
+맞춤법/띄어쓰기/문법 오류시 1점 감점
+키워드 개수가 4-6개를 벗어나는 경우 개당 1점 감점
+프랑스어로 작성한 경우 2점 감점
+주제 (친구 생일파티)와의 연관성을 전혀 찾을 수 없는 키워드 1개 당 1점 감점. 키워드간의 연관성을 찾지 마시오. 주제와 연결될 수 있으면 감점하지 않습니다.
+위에 명시되지 않은 감점하지 마시오.
+<평가 설명>에서는 감점 요인을 3문장 이내 짧고 직관적으로 설명합니다. 감점 요인이 없는 경우 평가 설명을 작성하지 않습니다.`
+            },
+            {
+                type: "example",
+                title: "Exemple : Question 4",
+                desc: "En organisant 3 ou 4 des mots-clés suivants dans le bon ordre, vous pouvez les utiliser efficacement dans votre discours.",
+                keywords: [
+                    { kr: "친구의 이름", fr: "Nom de l'ami" },
+                    { kr: "파티 장소", fr: "Lieu" },
+                    { kr: "초대한 사람", fr: "Invités" },
+                    { kr: "준비한 물건", fr: "Préparatifs" },
+                    { kr: "선물", fr: "Cadeau" },
+                    { kr: "음식과 음료", fr: "Nourriture/Boisson" }
+                ],
+                exampleText: "수진, 우리 집, 고등학교 친구들, 풍선과 케이크, 화장품, 피자와 콜라"
+            },
+            // Q5: Fight with friend
+            {
+                type: "practice",
+                title: "Question 5",
+                instructionFr: "Écoutez et écrivez les détails. Séparez-les par des virgules (,).",
+                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785176/Q_ex_5_khlnli.mp3",
+                systemPrompt: `친구와 싸운 경험에 대한 스피치 준비 메모입니다. 응답은 <평가 점수>와 <평가 설명> 태그를 사용해 작성하십시오. <평가 점수>는 감점 요인에 해당하는 것이 없으면 9/9점입니다.
+
+맞춤법/띄어쓰기/문법 오류시 1점 감점
+키워드 개수가 4-6개를 벗어나는 경우 개당 1점 감점
+프랑스어로 작성한 경우 2점 감점
+응답은 친구의 이름, 싸운 시기, 이유, 결과, 기분 등을 포함할 수 있습니다.주제 (친구와 싸움)와의 연관성을 전혀 찾을 수 없는 키워드에 한해서만 1점씩 감점. 키워드간의 연관성을 찾지 마시오. 주제와 연결될 수 있으면 감점하지 않습니다.
+위에 명시되지 않은 감점하지 마시오.
+<평가 설명>에서는 감점 요인을 3문장 이내 짧고 직관적으로 설명합니다. 감점 요인이 없는 경우 평가 설명을 작성하지 않습니다.`
+            },
+            {
+                type: "example",
+                title: "Exemple : Question 5",
+                desc: "En organisant 3 ou 4 des mots-clés suivants dans le bon ordre, vous pouvez les utiliser efficacement dans votre discours.",
+                keywords: [
+                    { kr: "친구의 이름", fr: "Nom de l'ami" },
+                    { kr: "언제 싸웠는지", fr: "Quand" },
+                    { kr: "왜 싸웠는지", fr: "Pourquoi" },
+                    { kr: "어떻게 됐는지", fr: "Résultat" },
+                    { kr: "기분이 어땠는지", fr: "Sentiment" },
+                    { kr: "지금은 어떤지", fr: "Situation actuelle" }
+                ],
+                exampleText: "민수, 지난 주, 약속 시간에 늦어서, 서로 사과했다, 속상했다, 지금은 다시 친하다"
+            },
+            {
+                type: "outro",
+                title: "Terminé !",
+                content: "Bravo ! Commencez l'entraînement oral dans l'Exercice 4 !",
+                icon: "ph-star"
+            }
+        ];
+
+        // --- STATE ---
+        let currentIndex = 0;
+        let currentAudio = null;
+        let isTimerActive = false;
+        let timeLeft = 20;
+        let timerInterval = null;
+        let lessonCompleted = false;
+
+        // Tone.js
+        let synth, chimeSynth;
+
+        // --- DOM ---
+        const mainContent = document.getElementById('main-content');
+        const progressBar = document.getElementById('progress-bar');
+        const pageIndicator = document.getElementById('page-indicator');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const modalOverlay = document.getElementById('modal-overlay');
+
+        // --- AUDIO ---
+        async function initAudio() {
+            try {
+                await Tone.start();
+                if (!synth) synth = new Tone.MembraneSynth().toDestination();
+                if (!chimeSynth) chimeSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+            } catch(e) {}
+        }
+
+        function playAudio(url) {
+            stopAudio();
+            const btn = document.getElementById('play-btn');
+            const audio = new Audio(url);
+            currentAudio = audio;
+
+            if (btn) {
+                btn.innerHTML = `<div class="playing-wave"><span></span><span></span><span></span></div>`;
+                btn.classList.replace('bg-blue-100', 'bg-blue-600');
+                btn.classList.replace('text-blue-600', 'text-white');
+            }
+
+            audio.play().catch(e => console.error(e));
+            
+            audio.onended = () => {
+                resetAudioUI();
+                currentAudio = null;
+                startTimer();
+            };
+        }
+
+        function stopAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+                resetAudioUI();
+            }
+        }
+
+        function resetAudioUI() {
+            const btn = document.getElementById('play-btn');
+            if (btn) {
+                btn.innerHTML = `<i class="ph-fill ph-play text-3xl"></i>`;
+                btn.classList.replace('bg-blue-600', 'bg-blue-100');
+                btn.classList.replace('text-white', 'text-blue-600');
+            }
+        }
+
+        function startTimer() {
+            if (isTimerActive) return;
+            isTimerActive = true;
+            timeLeft = 20;
+            
+            const timerDisplay = document.getElementById('timer-display');
+            const inputArea = document.getElementById('user-input');
+            
+            if (inputArea) {
+                inputArea.disabled = false;
+                inputArea.classList.remove('bg-gray-100', 'text-gray-500');
+                inputArea.focus();
+            }
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                if (timerDisplay) timerDisplay.innerText = `${timeLeft}s`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    isTimerActive = false;
+                    if (inputArea) {
+                        inputArea.disabled = true;
+                        inputArea.classList.add('bg-gray-100', 'text-gray-500');
+                    }
+                    if (chimeSynth) chimeSynth.triggerAttackRelease("C5", "8n");
+                }
+            }, 1000);
+        }
+
+        // --- API CALL ---
+        async function callClova(userInput, systemPrompt) {
+            const validateBtn = document.getElementById('validate-btn');
+            const inputArea = document.getElementById('user-input');
+            
+            if (inputArea) inputArea.disabled = true;
+
+            validateBtn.disabled = true;
+            validateBtn.innerHTML = `<i class="ph ph-spinner animate-spin text-xl"></i> Analyse...`;
+
+            try {
+                const messages = [
+                    { "role": "system", "content": [{ "type": "text", "text": systemPrompt }] },
+                    { "role": "user", "content": [{ "type": "text", "text": userInput }] }
+                ];
+
+                const response = await fetch(CLOVA_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages }) 
+                });
+
+                if (!response.ok) throw new Error("API Error");
+                const result = await response.json();
+                
+                let aiText = "";
+                if (result.result) {
+                    if (typeof result.result === 'string') aiText = result.result;
+                    else if (result.result.message?.content) {
+                         if (Array.isArray(result.result.message.content)) aiText = result.result.message.content.map(c => c.text).join("");
+                         else if (typeof result.result.message.content === 'string') aiText = result.result.message.content;
+                    }
+                }
+                if (!aiText) aiText = "Pas de réponse.";
+
+                validateBtn.innerHTML = `Voir l'évaluation <i class="ph-bold ph-eye ml-2"></i>`;
+                validateBtn.classList.replace('bg-blue-600', 'bg-green-600');
+                validateBtn.classList.replace('hover:bg-blue-700', 'hover:bg-green-700');
+                validateBtn.disabled = false;
+                
+                validateBtn.onclick = () => {
+                    openModal(aiText);
+                    nextBtn.disabled = false;
+                    nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                };
+
+            } catch (e) {
+                console.error(e);
+                validateBtn.innerHTML = "Erreur. Réessayer.";
+                validateBtn.disabled = false;
+            }
+        }
+
+        function openModal(text) {
+            const content = document.getElementById('modal-content');
+            content.textContent = text; 
+            modalOverlay.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            modalOverlay.classList.add('hidden');
+        }
+
+        // --- RENDER ---
+        function renderSlide(index) {
+            const slide = slides[index];
+            stopAudio();
+            clearInterval(timerInterval);
+            isTimerActive = false;
+            
+            if (slide.type === 'practice') {
+                nextBtn.disabled = true;
+                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            let html = `<div class="w-full h-full flex flex-col items-center p-6 overflow-y-auto no-scrollbar fade-enter-active bg-white">`;
+            
+            if (slide.type === 'cover') {
+                html += `
+                    <div class="flex flex-col items-center justify-center h-full text-center space-y-6">
+                        <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mb-2 shadow-sm">
+                            <i class="ph ${slide.icon} text-5xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 leading-tight break-keep mb-2">${slide.title}</h1>
+                            <h2 class="text-xl sm:text-2xl text-blue-600 font-medium">${slide.subtitle}</h2>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (slide.type === 'outro') {
+                 html += `
+                    <div class="flex flex-col items-center justify-center h-full text-center space-y-6">
+                        <div class="w-28 h-28 bg-green-50 rounded-full flex items-center justify-center text-green-600 mb-4 scale-110 shadow-sm">
+                            <i class="ph ${slide.icon} text-6xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-800">${slide.title}</h1>
+                        <p class="text-xl text-gray-600 leading-relaxed max-w-md mx-auto">${slide.content}</p>
+                    </div>
+                `;
+            }
+            else if (slide.type === 'practice') {
+                html += `
+                    <div class="w-full max-w-md flex flex-col gap-5 mx-auto h-full justify-center py-4">
+                        <div class="text-center shrink-0">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-1">${slide.title}</h2>
+                            <p class="text-gray-500 text-sm">${slide.instructionFr}</p>
+                        </div>
+                        <div class="flex items-center justify-center gap-6 shrink-0">
+                            <button id="play-btn" onclick="playAudio('${slide.audioUrl}')" class="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200 transition-colors shadow-sm">
+                                <i class="ph-fill ph-play text-3xl"></i>
+                            </button>
+                            <div class="flex flex-col items-center">
+                                <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Timer</span>
+                                <span id="timer-display" class="text-3xl font-mono font-bold text-gray-700">20s</span>
+                            </div>
+                        </div>
+                        <div class="relative w-full flex-1 min-h-[100px] max-h-[300px]">
+                            <textarea id="user-input" disabled 
+                                class="w-full h-full p-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 outline-none resize-none korean-text text-lg disabled:bg-gray-50 disabled:text-gray-400 transition-all placeholder-gray-300"
+                                placeholder="Ecrivez des mots-clés ici..."></textarea>
+                        </div>
+                        <button id="validate-btn" onclick="handleValidate()" 
+                            class="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shrink-0">
+                            Valider
+                        </button>
+                    </div>
+                `;
+            }
+            else if (slide.type === 'example') {
+                html += `
+                    <div class="w-full max-w-2xl flex flex-col gap-6 mx-auto items-center text-center justify-center h-full">
+                         <div class="shrink-0">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-2">${slide.title}</h2>
+                            <p class="text-gray-500 text-sm max-w-lg mx-auto">${slide.desc}</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 justify-center">
+                            ${slide.keywords.map(kw => `
+                                <div class="bg-gray-50 border border-gray-200 px-3 py-2 rounded-lg text-center">
+                                    <div class="text-sm font-bold text-gray-800 korean-text">${kw.kr}</div>
+                                    <div class="text-xs text-gray-500">${kw.fr}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg shadow-sm w-full">
+                             <div class="text-xs text-blue-600 font-bold uppercase tracking-wider mb-2">Exemple de réponse</div>
+                             <p class="korean-text text-xl text-gray-800 leading-relaxed font-medium">
+                                ${slide.exampleText}
+                             </p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+            mainContent.innerHTML = html;
+            updateNav();
+        }
+
+        // --- HANDLERS ---
+        function handleValidate() {
+            const input = document.getElementById('user-input');
+            const userInput = input.value.trim();
+            const slide = slides[currentIndex];
+            
+            if (!userInput) {
+                if (synth) synth.triggerAttackRelease("G2", "16n");
+                return;
+            }
+            clearInterval(timerInterval);
+            isTimerActive = false;
+            callClova(userInput, slide.systemPrompt);
+        }
+
+        function updateNav() {
+            const progress = ((currentIndex + 1) / slides.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            pageIndicator.textContent = `${currentIndex + 1} / ${slides.length}`;
+
+            prevBtn.disabled = currentIndex === 0;
+
+            if (currentIndex === slides.length - 1) {
+                nextBtn.style.display = 'none';
+                if (!lessonCompleted) {
+                    completeLesson();
+                    lessonCompleted = true;
+                }
+            } else {
+                nextBtn.style.display = 'flex';
+                nextBtn.innerHTML = `<span class="hidden sm:inline">Suivant</span> <i class="ph-bold ph-arrow-right"></i>`;
+                lessonCompleted = false;
+            }
+        }
+
+        document.addEventListener('visibilitychange', () => { if (document.hidden) stopAudio(); });
+        window.addEventListener('pagehide', stopAudio);
+
+        async function nextSlide() {
+            stopAudio();
+            try {
+                await initAudio();
+                if (synth) synth.triggerAttackRelease("C2", "32n");
+            } catch(e) {}
+            if (currentIndex < slides.length - 1) {
+                currentIndex++;
+                renderSlide(currentIndex);
+            }
+        }
+
+        async function prevSlide() {
+            stopAudio();
+            try {
+                await initAudio();
+                if (synth) synth.triggerAttackRelease("C2", "32n");
+            } catch(e) {}
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderSlide(currentIndex);
+            }
+        }
+
+        function completeLesson() {
+            if (chimeSynth) {
+                chimeSynth.triggerAttackRelease(["C5", "E5", "G5"], "8n");
+            }
+            console.log("Lesson Complete");
+            window.parent.postMessage({ type: 'lesson_complete' }, '*');
+        }
+
+        renderSlide(0);
+    </script>
+</body>
+</html>
