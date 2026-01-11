@@ -10,6 +10,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Nunito:wght@400;600;700&display=swap');
 
+        /* 1. 기본 설정 */
         body {
             font-family: 'Nunito', 'Noto Sans KR', sans-serif;
             overflow: hidden;
@@ -17,50 +18,95 @@
             touch-action: none;
             user-select: none;
             -webkit-user-select: none;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
         }
 
-        .slide-content {
+        /* 2. 메인 컨테이너 */
+        #app-container {
+            width: 100%;
             height: 100%;
+            max-width: 1024px;
+            max-height: 900px;
+            background-color: white;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 1.5rem;
-            width: 100%;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
 
-        /* 커스텀 오디오 버튼 스타일 */
+        @media (min-width: 640px) and (min-height: 640px) {
+            #app-container {
+                border-radius: 1rem;
+                height: 95vh;
+                width: 95vw;
+            }
+        }
+
+        /* 3. 콘텐츠 영역 (Flex Gap 기반 균일 배치) */
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center;
+            text-align: center;
+            padding: 4vh 1.5rem; 
+            /* 모든 요소 사이의 간격을 일정하게 유지 (마진 대신 사용) */
+            gap: 3vh; 
+            width: 100%;
+            height: 100%;
+            overflow: hidden; 
+        }
+
+        @media (max-width: 640px) {
+            .slide-content {
+                padding: 3vh 1.25rem; 
+                gap: 2.5vh;
+            }
+        }
+
+        /* 4. 커스텀 오디오 버튼 */
         .custom-audio-btn {
-            width: 60px;
-            height: 60px;
+            width: 3.5rem; 
+            height: 3.5rem;
             border-radius: 50%;
-            background-color: #4F46E5; /* Indigo 600 */
+            background-color: #4F46E5;
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 1.5rem;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: all 0.2s ease;
             border: none;
             outline: none;
+            flex-shrink: 0; 
         }
 
-        .custom-audio-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        @media (min-width: 640px) {
+            .custom-audio-btn {
+                width: 4.5rem;
+                height: 4.5rem;
+                font-size: 2rem;
+            }
         }
 
-        /* 재생 중일 때 스타일 (클릭 불가) */
+        .custom-audio-btn:active { transform: scale(0.95); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
         .custom-audio-btn.playing {
-            background-color: #E0E7FF; /* Indigo 100 */
+            background-color: #E0E7FF;
             color: #4F46E5;
             cursor: not-allowed;
-            pointer-events: none; /* 클릭 방지 */
+            pointer-events: none;
             animation: pulse 1.5s infinite;
-            transform: none; /* active 효과 제거 */
+            transform: none;
         }
 
         @keyframes pulse {
@@ -69,68 +115,104 @@
             100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
         }
 
-        /* 텍스트 강조 박스 수정: 중앙 정렬 */
+        /* 5. 텍스트 박스 스타일 (완벽한 중앙 정렬) */
         .korean-example {
             background-color: #FFFFFF;
             border-left: 4px solid #6366F1;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
+            /* 내부 패딩을 상하 동일하게 설정 */
+            padding: 1.5rem; 
             border-radius: 0.5rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 600px;
-            text-align: center; /* 텍스트 중앙 정렬 요청 반영 */
-            margin-left: auto;
-            margin-right: auto;
+            margin: 0 auto; 
+            text-align: center; /* 텍스트 중앙 정렬 강제 */
+            
+            /* 내부 요소 정렬 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            /* 내부 요소 간 간격 (제목과 본문 사이) */
+            gap: 1rem; 
+
+            max-height: none; 
+            flex-shrink: 1;
+            overflow: visible; 
+        }
+        
+        @media (min-width: 640px) {
+            .korean-example { padding: 2rem; }
         }
 
-        .highlight-keyword {
-            color: #4F46E5;
+        /* 6. 반응형 텍스트 유틸리티 */
+        .responsive-title {
+            font-size: clamp(1.1rem, 2.5vh, 1.8rem);
             font-weight: 700;
+            color: #1F2937;
+            /* 마진 제거 (Gap으로 제어) */
+            margin: 0;
+            line-height: 1.3;
         }
 
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
+        .responsive-text {
+            font-size: clamp(0.85rem, 1.8vh, 1.2rem);
+            color: #4B5563;
+            line-height: 1.4;
+            max-width: 42rem;
+            word-break: keep-all;
+            margin: 0; /* 마진 제거 */
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .responsive-example-text {
+            font-size: clamp(0.8rem, 1.8vh, 1.25rem); 
+            font-weight: 500;
+            color: #1F2937;
+            font-family: 'Noto Sans KR', sans-serif;
+            word-break: keep-all;
+            line-height: 1.8;
+            text-align: center; /* 텍스트 중앙 정렬 */
+            width: 100%;
         }
 
-        /* Outro 페이지 균일한 마진을 위한 유틸리티 */
-        .outro-spacer {
-            margin-top: 2rem;
-            margin-bottom: 2rem;
+        .example-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #6366F1;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #E0E7FF;
+            padding-bottom: 0.25rem;
+            display: inline-block;
+            margin: 0; /* 마진 제거 */
         }
+        @media (min-width: 640px) {
+            .example-label { font-size: 0.85rem; }
+        }
+
     </style>
 </head>
-<body class="h-screen w-screen flex items-center justify-center text-gray-800">
+<body>
 
-    <!-- 메인 컨테이너 -->
-    <div id="app-container" class="relative w-full h-full max-w-5xl max-h-[900px] flex flex-col bg-white sm:rounded-2xl shadow-2xl overflow-hidden">
-        
+    <div id="app-container">
         <!-- 헤더: 진행바 -->
-        <div class="h-2 bg-gray-200 w-full">
+        <div class="h-1.5 sm:h-2 bg-gray-200 w-full flex-shrink-0">
             <div id="progress-bar" class="h-full bg-indigo-500 transition-all duration-300" style="width: 0%"></div>
         </div>
 
         <!-- 메인 컨텐츠 영역 -->
-        <div id="content-area" class="flex-1 overflow-hidden relative w-full">
+        <div id="content-area" class="w-full relative overflow-hidden flex-1">
             <!-- 자바스크립트로 내용 주입 -->
         </div>
 
         <!-- 네비게이션 -->
-        <div id="navigation" class="h-20 bg-gray-50 border-t border-gray-200 flex items-center justify-between px-6 hidden z-10">
-            <button id="prev-btn" class="flex items-center text-gray-500 hover:text-indigo-600 font-bold transition-colors disabled:opacity-30 disabled:cursor-not-allowed select-none">
-                <i class="ph ph-caret-left text-2xl mr-2"></i> Précédent
+        <div id="navigation" class="h-16 sm:h-20 bg-gray-50 border-t border-gray-200 flex items-center justify-between px-4 sm:px-6 hidden z-10 flex-shrink-0">
+            <button id="prev-btn" class="flex items-center text-gray-500 hover:text-indigo-600 font-bold transition-colors disabled:opacity-30 disabled:cursor-not-allowed select-none text-sm sm:text-base">
+                <i class="ph ph-caret-left text-lg sm:text-2xl mr-1 sm:mr-2"></i> Précédent
             </button>
-            
-            <!-- 페이지 번호 디스플레이 삭제됨 -->
             <div class="flex-1"></div>
-
-            <button id="next-btn" class="flex items-center text-indigo-600 hover:text-indigo-800 font-bold transition-colors select-none">
-                Suivant <i class="ph ph-caret-right text-2xl ml-2"></i>
+            <button id="next-btn" class="flex items-center text-indigo-600 hover:text-indigo-800 font-bold transition-colors select-none text-sm sm:text-base">
+                Suivant <i class="ph ph-caret-right text-lg sm:text-2xl ml-1 sm:ml-2"></i>
             </button>
         </div>
     </div>
@@ -157,28 +239,30 @@
             },
             {
                 type: 'example',
-                // Page 3 번역 수정
                 content: "Pendant les 20 secondes de préparation, vous pouvez organiser et résumer ce que vous allez dire. Vous devez planifier les détails liés au sujet.<br><br>Comme le temps de préparation est court, vous ne pouvez pas écrire tout votre discours. Vous devez noter des mots-clés et être capable de parler directement en les utilisant.",
                 exampleTitle: "Exemple de mots-clés",
                 exampleText: "가장 친한 친구, 민수, 고등학교, 친절하다, 키가 크다"
             },
             {
                 type: 'example',
-                content: "Parlez pendant 30 secondes en utilisant vos mots-clés.<br><br><strong>Conseil :</strong> Visez 2 à 3 phrases correctes en utilisant la grammaire de base.",
+                title: "Conseils de préparation - Débutant",
+                content: "Le discours réel se déroule pendant 30 secondes en regardant les mots-clés préparés.<br><br>Visez à dire correctement 2 à 3 phrases en respectant la grammaire de base.",
                 audio: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782323/R_ex_1_1_ef25g9.mp3",
                 exampleTitle: "Exemple de réponse",
                 exampleText: "제 가장 친한 친구는 민수예요. 저는 고등학교에서 민수를 만났어요. 민수는 친절하고 키가 커요."
             },
             {
                 type: 'example',
-                content: "<strong>Conseil :</strong> Entraînez-vous à faire 4 à 5 phrases plus longues en utilisant des phrases complexes et des conjonctions.<br>L'utilisation d'un vocabulaire varié aide à obtenir un meilleur score.",
+                title: "Conseils de préparation - Intermédiaire",
+                content: "Il est bon de s'entraîner à dire environ 4 à 5 phrases un peu plus longues en utilisant des phrases enchâssées et des conjonctions.<br>L'utilisation d'un vocabulaire plus varié aide également à obtenir un score élevé.",
                 audio: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782326/R_ex_1_2_chleqe.mp3",
                 exampleTitle: "Exemple de réponse",
                 exampleText: "저는 고등학교 때 민수와 같은 반이었어요. 그때는 별로 친하지 않았지만 같은 대학교에 가면서 아주 가까워졌어요. 민수는 친절하고 키도 커서 친구들에게 인기가 많았고 공부도 정말 잘했어요."
             },
             {
                 type: 'content',
-                content: "<strong>Conseil :</strong> À ce niveau, vous devez utiliser divers temps et construire un discours cohérent de plus de 6 phrases.<br><br>Comme le sujet est quotidien, privilégiez une prononciation naturelle et une structure logique plutôt que d'essayer d'utiliser un vocabulaire trop complexe ou peu naturel."
+                title: "Conseils de préparation - Avancé",
+                content: "Si vous êtes un locuteur de niveau avancé, vous devez être capable d'utiliser divers temps verbaux à la Question 1 et de parler de manière longue et cohérente avec plus de 6 phrases.<br><br>Comme il s'agit d'un contenu quotidien, une prononciation naturelle et une structure cohérente sont plus importantes que d'essayer d'utiliser un vocabulaire artificiellement complexe."
             },
             {
                 type: 'example',
@@ -201,7 +285,7 @@
         let audioContextStarted = false;
         let currentAudio = null;
         let currentBtn = null;
-        let hasOutroPlayed = false; // Outro 재생 플래그
+        let hasOutroPlayed = false;
 
         // --- DOM 요소 ---
         const appContainer = document.getElementById('app-container');
@@ -210,16 +294,12 @@
         const progressBar = document.getElementById('progress-bar');
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
-        // Page num display removed
 
         // --- 초기화 ---
         async function initAudio() {
             if (!audioContextStarted) {
                 await Tone.start();
-                
-                // [FIX] PolySynth로 변경하여 배열(화음) 입력 처리 가능하게 수정
                 completionSynth = new Tone.PolySynth(Tone.Synth).toDestination();
-                
                 clickSynth = new Tone.MembraneSynth({
                     pitchDecay: 0.008,
                     octaves: 2,
@@ -232,7 +312,6 @@
                         attackCurve: "exponential"
                     }
                 }).toDestination();
-                
                 audioContextStarted = true;
             }
         }
@@ -245,7 +324,7 @@
 
         // --- 렌더링 로직 ---
         function renderSlide(index) {
-            stopCurrentAudio(); // 페이지 이동 시 오디오 강제 정지
+            stopCurrentAudio();
 
             const slide = slides[index];
             const isLastPage = index === slides.length - 1;
@@ -261,45 +340,49 @@
                 navigation.classList.add('hidden');
                 html = `
                     <div class="slide-content fade-in">
-                        <div class="bg-indigo-100 p-6 rounded-full mb-6">
-                            <i class="ph-fill ph-chat-circle-text text-6xl text-indigo-600"></i>
+                        <div class="flex-1 flex flex-col justify-center items-center w-full h-full" style="gap: 2rem;">
+                            <div class="bg-indigo-100 p-4 sm:p-6 rounded-full flex-shrink-0">
+                                <i class="ph-fill ph-chat-circle-text text-5xl sm:text-6xl text-indigo-600"></i>
+                            </div>
+                            <div class="text-center">
+                                <h1 class="text-2xl sm:text-4xl font-extrabold text-gray-900 mb-2 sm:mb-4 px-2 break-keep">${slide.title}</h1>
+                                <p class="text-lg sm:text-xl text-gray-600 font-medium px-4">${slide.subtitle}</p>
+                            </div>
+                            
+                            <button onclick="startLesson()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 sm:px-10 rounded-full shadow-lg transform transition hover:scale-105 flex items-center text-base sm:text-lg flex-shrink-0">
+                                Commencer <i class="ph-bold ph-arrow-right ml-2"></i>
+                            </button>
                         </div>
-                        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">${slide.title}</h1>
-                        <p class="text-xl text-gray-600 font-medium">${slide.subtitle}</p>
-                        
-                        <button onclick="startLesson()" class="mt-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-10 rounded-full shadow-lg transform transition hover:scale-105 flex items-center">
-                            Commencer <i class="ph-bold ph-arrow-right ml-2"></i>
-                        </button>
                     </div>
                 `;
             } else {
                 navigation.classList.remove('hidden');
                 
-                // 기본 컨텐츠
-                let contentHtml = '';
-                
+                let innerContent = '';
+
+                // 타이틀
                 if (slide.title) {
-                    contentHtml += `<h2 class="text-2xl font-bold text-gray-800 mb-6">${slide.title}</h2>`;
+                    innerContent += `<h2 class="responsive-title text-center flex-shrink-0">${slide.title}</h2>`;
                 }
 
-                // Outro 페이지일 경우 레이아웃 조정
+                // Outro 페이지
                 if (slide.type === 'outro') {
-                    contentHtml += `
-                        <div class="flex flex-col items-center justify-center h-full">
-                             <div class="text-indigo-600 font-semibold flex flex-col items-center animate-bounce mb-8">
-                                <i class="ph-fill ph-star text-6xl"></i>
+                    innerContent += `
+                        <div class="flex flex-col items-center justify-center w-full h-full" style="gap: 2rem;">
+                             <div class="text-indigo-600 font-semibold flex flex-col items-center animate-bounce">
+                                <i class="ph-fill ph-star text-5xl sm:text-6xl"></i>
                             </div>
-                            <p class="text-xl text-gray-700 leading-relaxed max-w-2xl font-medium">${slide.content}</p>
+                            <p class="responsive-text font-medium text-center px-4">${slide.content}</p>
                         </div>
                     `;
                 } else {
-                    // 일반 페이지
-                    contentHtml += `<p class="text-lg text-gray-600 leading-relaxed mb-6 max-w-2xl">${slide.content}</p>`;
+                    // 설명 텍스트
+                    innerContent += `<p class="responsive-text px-2">${slide.content}</p>`;
 
-                    // 오디오 추가 (정지 불가 로직 적용)
+                    // 오디오 버튼
                     if (slide.audio) {
-                        contentHtml += `
-                            <div class="flex flex-col items-center mb-6">
+                        innerContent += `
+                            <div class="flex flex-col items-center flex-shrink-0">
                                 <button id="audio-btn-${index}" class="custom-audio-btn" onclick="playAudio('${slide.audio}', 'audio-btn-${index}')">
                                     <i class="ph-fill ph-play"></i>
                                 </button>
@@ -308,12 +391,12 @@
                         `;
                     }
 
-                    // 예시 텍스트 추가 (중앙 정렬)
+                    // 예시 텍스트 박스
                     if (slide.exampleText) {
-                        contentHtml += `
-                            <div class="korean-example">
-                                <div class="text-xs font-bold text-indigo-500 uppercase mb-2 tracking-wide border-b border-indigo-100 pb-1 inline-block px-4">${slide.exampleTitle || 'Exemple'}</div>
-                                <div class="text-lg font-medium text-gray-800 font-['Noto_Sans_KR'] leading-relaxed word-keep break-keep">
+                        innerContent += `
+                            <div class="korean-example flex-shrink-1">
+                                <div class="example-label">${slide.exampleTitle || 'Exemple'}</div>
+                                <div class="responsive-example-text">
                                     ${slide.exampleText}
                                 </div>
                             </div>
@@ -321,7 +404,7 @@
                     }
                 }
 
-                html = `<div class="slide-content fade-in overflow-y-auto w-full">${contentHtml}</div>`;
+                html = `<div class="slide-content fade-in w-full">${innerContent}</div>`;
             }
 
             contentArea.innerHTML = html;
@@ -329,15 +412,14 @@
             prevBtn.disabled = index === 0;
             
             if (isLastPage) {
-                nextBtn.innerHTML = `Terminer <i class="ph ph-check text-2xl ml-2"></i>`;
-                // 마지막 페이지 도달 시 종료음 1회만 재생
+                nextBtn.innerHTML = `Terminer <i class="ph ph-check text-lg sm:text-2xl ml-1 sm:ml-2"></i>`;
                 playCompletion();
             } else {
-                nextBtn.innerHTML = `Suivant <i class="ph ph-caret-right text-2xl ml-2"></i>`;
+                nextBtn.innerHTML = `Suivant <i class="ph ph-caret-right text-lg sm:text-2xl ml-1 sm:ml-2"></i>`;
             }
         }
 
-        // --- 오디오 제어 (정지 불가) ---
+        // --- 오디오 및 기능 로직 (변경 없음) ---
         function stopCurrentAudio() {
             if (currentAudio) {
                 currentAudio.pause();
@@ -352,46 +434,33 @@
 
         function playAudio(src, btnId) {
             const btn = document.getElementById(btnId);
-            
-            // 재생 중이면 아무것도 하지 않음 (정지 불가)
             if (currentBtn === btn) return;
 
-            // 다른 오디오가 재생 중이라면 정지
             stopCurrentAudio();
-
             const audio = new Audio(src);
             
-            // 재생 종료 이벤트
             audio.onended = () => {
                 btn.innerHTML = '<i class="ph-fill ph-play"></i>';
                 btn.classList.remove('playing');
                 currentAudio = null;
                 currentBtn = null;
             };
-            
             audio.play().catch(e => console.error("Audio play error:", e));
-            
             currentAudio = audio;
             currentBtn = btn;
-            
-            // UI 업데이트: 재생 중 아이콘 및 클릭 방지
             btn.innerHTML = '<i class="ph-fill ph-speaker-high"></i>';
             btn.classList.add('playing');
         }
 
-        // --- 종료 로직 ---
         function playCompletion() {
-            // 이미 재생했다면 실행하지 않음
             if (hasOutroPlayed) return;
-            
             if (completionSynth && audioContextStarted) {
                 completionSynth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "4n");
             }
             window.parent.postMessage({ type: 'lesson_complete' }, '*');
-            hasOutroPlayed = true; // 재생 완료 플래그 설정
+            hasOutroPlayed = true;
         }
 
-        // --- 네비게이션 함수 ---
         async function startLesson() {
             await initAudio(); 
             nextSlide();
@@ -409,26 +478,19 @@
             if (currentIndex > 0) {
                 playClickSound();
                 currentIndex--;
-                
-                // 뒤로 가면 Outro 플래그 초기화 (다시 마지막 페이지 오면 소리 나게)
-                if (hasOutroPlayed) {
-                    hasOutroPlayed = false;
-                }
-                
+                if (hasOutroPlayed) hasOutroPlayed = false;
                 renderSlide(currentIndex);
             }
         }
 
-        // 초기 실행
         renderSlide(0);
 
         prevBtn.addEventListener('click', prevSlide);
         nextBtn.addEventListener('click', nextSlide);
 
         window.startLesson = startLesson;
-        window.playAudio = playAudio; // toggleAudio -> playAudio
+        window.playAudio = playAudio;
         window.nextSlide = nextSlide; 
-
     </script>
 </body>
 </html>
