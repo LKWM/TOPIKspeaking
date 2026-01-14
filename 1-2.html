@@ -3,604 +3,699 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Exercice 1 - 질문 이해하기</title>
+    <title>Exercice 1 - Comprendre la question</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/phosphor-icons"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #2563EB;
-            --secondary-color: #10B981;
-            --bg-color: #F8FAFC;
-            --text-main: #1E293B;
-            --error-color: #EF4444;
-        }
-        
-        * {
-            box-sizing: border-box;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Nunito:wght@400;600;700&display=swap');
 
+        /* 1. 기본 설정 */
         body {
-            font-family: 'Noto Sans', 'Noto Sans KR', sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 0;
-            overflow: hidden; /* Global scroll lock */
-            width: 100vw;
-            height: 100vh;
-            color: var(--text-main);
-        }
-
-        #app-container {
-            background-color: var(--bg-color);
-            position: relative;
-            /* Full width/height adaptation */
-            width: 100%;
-            height: 100%;
+            font-family: 'Nunito', 'Noto Sans KR', sans-serif;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Transitions */
-        .fade-enter-active { opacity: 1; transition: opacity 0.3s ease-in-out; }
-        .fade-enter { opacity: 0; }
-        
-        /* Audio Animation */
-        .playing-wave { display: flex; align-items: center; justify-content: center; gap: 2px; }
-        .playing-wave span {
-            width: 3px; height: 12px; background-color: white;
-            animation: wave 1s infinite ease-in-out; border-radius: 2px;
-        }
-        .playing-wave span:nth-child(2) { animation-delay: 0.1s; }
-        .playing-wave span:nth-child(3) { animation-delay: 0.2s; }
-        @keyframes wave { 0%, 100% { height: 12px; } 50% { height: 20px; } }
-
-        /* Quiz Styles */
-        .option-btn {
-            transition: all 0.2s;
-            border: 2px solid #E2E8F0;
+            background-color: #F3F4F6;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            height: 100vh;
+            width: 100vw;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0;
+            padding: 0;
         }
-        .option-btn:hover:not(:disabled) { border-color: var(--primary-color); background-color: #EFF6FF; }
-        .option-btn.selected { border-color: var(--primary-color); background-color: #EFF6FF; color: var(--primary-color); font-weight: bold; }
-        .option-btn.correct { border-color: var(--secondary-color); background-color: #ECFDF5; color: var(--secondary-color); }
-        .option-btn.wrong { border-color: var(--error-color); background-color: #FEF2F2; color: var(--error-color); animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+
+        /* 2. 메인 컨테이너 */
+        #app-container {
+            width: 100%;
+            height: 100%;
+            max-width: 1024px;
+            max-height: 900px;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        @media (min-width: 640px) and (min-height: 640px) {
+            #app-container {
+                border-radius: 1rem;
+                height: 95vh;
+                width: 95vw;
+            }
+        }
+
+        /* 3. 콘텐츠 영역 */
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* 수직 중앙 정렬 */
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem; 
+            width: 100%;
+            height: 100%;
+            overflow-y: auto; 
+            gap: 1.5rem; /* 기본 간격 */
+        }
+
+        /* 퀴즈 전용 간격 조정 (아주 좁게) */
+        .slide-content.quiz-mode {
+            gap: 0.75rem; /* 아이템 간 간격 최소화 */
+            justify-content: center; /* 전체 덩어리를 화면 중앙에 배치 */
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        /* 4. 커스텀 오디오 버튼 */
+        .custom-audio-btn {
+            width: 4rem; 
+            height: 4rem;
+            border-radius: 50%;
+            background-color: #4F46E5;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            border: none;
+            outline: none;
+            flex-shrink: 0; 
+        }
+
+        .custom-audio-btn:active { transform: scale(0.95); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+        .custom-audio-btn.playing {
+            background-color: #E0E7FF;
+            color: #4F46E5;
+            cursor: not-allowed;
+            pointer-events: none;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+        }
+
+        /* 5. 텍스트 유틸리티 */
+        .responsive-title {
+            font-size: clamp(1.2rem, 3vh, 1.8rem);
+            font-weight: 700;
+            color: #1F2937;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .responsive-text {
+            font-size: clamp(0.9rem, 2vh, 1.25rem);
+            color: #4B5563;
+            line-height: 1.5;
+            max-width: 42rem;
+            word-break: keep-all;
+            margin: 0;
+        }
+
+        /* 6. 퀴즈 옵션 버튼 */
+        .quiz-option {
+            background-color: white;
+            border: 2px solid #E5E7EB;
+            border-radius: 1rem;
+            padding: 0.75rem; /* 패딩 축소 */
+            font-size: 1rem;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            text-align: center;
+            font-family: 'Noto Sans KR', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 3rem; /* 높이 약간 축소 */
+        }
+
+        .quiz-option:hover:not(.disabled) {
+            border-color: #6366F1;
+            color: #4F46E5;
+            background-color: #EEF2FF;
+        }
+
+        .quiz-option.correct {
+            background-color: #D1FAE5;
+            border-color: #10B981;
+            color: #065F46;
+        }
+
+        .quiz-option.wrong {
+            background-color: #FEE2E2;
+            border-color: #EF4444;
+            color: #991B1B;
+            animation: shake 0.5s;
+        }
+
+        .quiz-option.disabled {
+            cursor: default;
+            opacity: 0.7;
+        }
 
         @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
 
-        .korean-text { font-family: 'Noto Sans KR', sans-serif; word-break: keep-all; }
+        /* 7. 힌트 박스 */
+        .hint-container {
+            width: 100%;
+            max-width: 32rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 60px; /* 공간 확보 */
+            justify-content: center; /* 내부 내용 중앙 정렬 */
+        }
+
+        .hint-box {
+            background-color: #F9FAFB;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            width: 100%;
+            text-align: center;
+            display: none; /* JS로 제어 */
+            border: 1px solid #E5E7EB;
+        }
         
+        .hint-text-korean {
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1F2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .hint-text-french {
+            font-size: 0.9rem;
+            color: #6B7280;
+            font-style: italic;
+        }
+
         .hint-btn {
-            font-size: clamp(0.75rem, 2vh, 0.9rem);
+            font-size: 0.8rem;
             font-weight: 600;
-            text-decoration: underline;
+            color: #4F46E5;
+            background: #EEF2FF;
+            padding: 0.4rem 0.8rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background 0.2s;
             display: inline-flex;
             align-items: center;
             gap: 0.25rem;
-            transition: color 0.2s;
-            padding: 0.5rem;
+            border: none;
         }
-        
-        /* Custom scrollbar hiding */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hint-btn:hover { background: #E0E7FF; }
 
-        /* Flexible Typography */
-        .txt-title { font-size: clamp(1.25rem, 3.5vh, 2.25rem); }
-        .txt-subtitle { font-size: clamp(1rem, 2.5vh, 1.5rem); }
-        .txt-body { font-size: clamp(0.875rem, 2vh, 1.125rem); }
-        .txt-instruction { font-size: clamp(1rem, 2.5vh, 1.5rem); }
+        /* 페이드인 애니메이션 */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
     </style>
 </head>
 <body>
 
     <div id="app-container">
-        <!-- Header -->
-        <header class="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10 relative">
-            <div class="flex items-center gap-2 text-blue-600 font-bold">
-                <i class="ph-fill ph-chat-circle-text text-xl"></i>
-                <span class="text-sm tracking-wide">TOPIK 말하기</span>
-            </div>
-            <div class="text-xs text-gray-400 font-medium">Exercice 1</div>
-        </header>
+        <!-- 진행바 -->
+        <div class="h-1.5 sm:h-2 bg-gray-200 w-full flex-shrink-0">
+            <div id="progress-bar" class="h-full bg-indigo-500 transition-all duration-300" style="width: 0%"></div>
+        </div>
 
-        <!-- Main Content -->
-        <main id="main-content" class="flex-1 w-full mx-auto overflow-hidden relative flex flex-col z-0">
-            <!-- Dynamic Content -->
-        </main>
+        <!-- 메인 컨텐츠 영역 -->
+        <div id="content-area" class="w-full relative overflow-hidden flex-1 flex flex-col">
+            <!-- 자바스크립트로 내용 주입 -->
+        </div>
 
-        <!-- Footer -->
-        <footer id="footer-nav" class="h-16 bg-white border-t border-gray-200 flex items-center justify-between px-4 sm:px-8 shrink-0 z-50 relative">
-            <div class="absolute top-0 left-0 h-1 bg-gray-100 w-full">
-                <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
-            </div>
-
-            <button id="prev-btn" onclick="prevSlide()" class="flex items-center gap-2 text-gray-500 font-medium px-4 py-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 transition-colors" disabled>
-                <i class="ph-bold ph-arrow-left"></i>
-                <span class="hidden sm:inline">Précédent</span>
+        <!-- 네비게이션 -->
+        <div id="navigation" class="h-16 sm:h-20 bg-gray-50 border-t border-gray-200 flex items-center justify-between px-4 sm:px-6 hidden z-10 flex-shrink-0">
+            <button id="prev-btn" class="flex items-center text-gray-500 hover:text-indigo-600 font-bold transition-colors disabled:opacity-30 disabled:cursor-not-allowed select-none text-sm sm:text-base">
+                <i class="ph ph-caret-left text-lg sm:text-2xl mr-1 sm:mr-2"></i> Précédent
             </button>
-
-            <span id="page-indicator" class="text-sm font-semibold text-gray-600 font-mono">1 / 13</span>
-
-            <button id="next-btn" onclick="nextSlide()" class="flex items-center gap-2 bg-blue-600 text-white font-medium px-6 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                <span class="hidden sm:inline">Suivant</span>
-                <i class="ph-bold ph-arrow-right"></i>
+            <div class="flex-1"></div>
+            <button id="next-btn" class="flex items-center text-indigo-600 hover:text-indigo-800 font-bold transition-colors select-none text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed">
+                Suivant <i class="ph ph-caret-right text-lg sm:text-2xl ml-1 sm:ml-2"></i>
             </button>
-        </footer>
+        </div>
     </div>
 
     <script>
-        // --- DATA ---
+        // --- 데이터 설정 ---
         const slides = [
             {
-                type: "cover",
-                title: "Exercice 1 - 질문 이해하기",
-                subtitle: "Comprendre la question",
-                desc: "",
-                icon: "ph-ear"
+                type: 'cover',
+                title: "Exercice 1 - Comprendre la question",
+                subtitle: "Exercice 1 - 질문 이해하기"
             },
             {
-                type: "info",
-                title: "Consignes",
-                content: "Dans l'épreuve orale du TOPIK, toutes les questions sont posées sous forme audio. Vous ne pouvez écouter la question qu'une seule fois.<br><br>Écoutez attentivement et <strong>identifiez le sujet</strong>.",
-                icon: "ph-info"
+                type: 'info',
+                content: "Dans l'épreuve d'expression orale du TOPIK, toutes les questions sont posées sous forme audio.<br><br>Vous ne pouvez écouter la question qu'<strong>une seule fois</strong>.<br><br>Écoutez attentivement et identifiez le sujet dont vous devez parler."
             },
-            // PART 1: Identify Topic (Questions 1-5)
+            // --- Set 1: 주제 찾기 ---
             {
-                type: "quiz",
-                mode: "topic",
-                instruction: "Écoutez la question et choisissez le sujet approprié.",
-                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782322/Q_ex_1_vaj6tr.mp3",
+                type: 'quiz',
+                instruction: "Écoutez la question et choisissez le sujet le plus approprié.",
+                audio: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782322/Q_ex_1_vaj6tr.mp3",
                 text: "가장 친한 친구가 누구예요? 그 친구에 대해 이야기하세요.",
                 translation: "Qui est votre meilleur ami ? Parlez de cet ami.",
                 options: ["친구", "여행", "가족", "공부"],
-                answer: "친구"
+                answerIndex: 0
             },
             {
-                type: "quiz",
-                mode: "topic",
-                instruction: "Écoutez la question et choisissez le sujet approprié.",
-                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785142/Q_ex_2_oi4b89.mp3",
+                type: 'quiz',
+                instruction: "Écoutez la question et choisissez le sujet le plus approprié.",
+                audio: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785142/Q_ex_2_oi4b89.mp3",
                 text: "어디에 여행을 가고 싶어요? 하고 싶은 여행에 대해 이야기하세요.",
-                translation: "Où voulez-vous aller en voyage ? Parlez du voyage que vous désirez faire.",
+                translation: "Où voulez-vous voyager ? Parlez du voyage que vous voulez faire.",
                 options: ["집", "나라", "여행", "이름"],
-                answer: "여행"
+                answerIndex: 2
             },
             {
-                type: "quiz",
-                mode: "topic",
-                instruction: "Écoutez la question et choisissez le sujet approprié.",
-                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785155/Q_ex_3_xoofmk.mp3",
+                type: 'quiz',
+                instruction: "Écoutez la question et choisissez le sujet le plus approprié.",
+                audio: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785155/Q_ex_3_xoofmk.mp3",
                 text: "시간이 있을 때 뭘 해요? 좋아하는 활동에 대해 이야기하세요.",
-                translation: "Que faites-vous quand vous avez du temps ? Parlez des activités que vous aimez.",
+                translation: "Que faites-vous quand vous avez du temps ? Parlez d'une activité que vous aimez.",
                 options: ["옷", "취미", "공부", "선물"],
-                answer: "취미"
+                answerIndex: 1
             },
             {
-                type: "quiz",
-                mode: "topic",
-                instruction: "Écoutez la question et choisissez le sujet approprié.",
-                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785165/Q_ex_4_warvot.mp3",
+                type: 'quiz',
+                instruction: "Écoutez la question et choisissez le sujet le plus approprié.",
+                audio: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785165/Q_ex_4_warvot.mp3",
                 text: "내일은 친구의 생일이에요. 생일 파티 계획에 대해 이야기하세요.",
-                translation: "Demain, c'est l'anniversaire d'un ami. Parlez des projets pour la fête d'anniversaire.",
+                translation: "Demain, c'est l'anniversaire d'un ami. Parlez de vos projets pour la fête d'anniversaire.",
                 options: ["생일", "가족", "경험", "날짜"],
-                answer: "생일"
+                answerIndex: 0
             },
             {
-                type: "quiz",
-                mode: "topic",
-                instruction: "Écoutez la question et choisissez le sujet approprié.",
-                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785176/Q_ex_5_khlnli.mp3",
+                type: 'quiz',
+                instruction: "Écoutez la question et choisissez le sujet le plus approprié.",
+                audio: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785176/Q_ex_5_khlnli.mp3",
                 text: "친구와 싸운 적이 있어요? 그 경험에 대해 이야기하세요.",
                 translation: "Vous êtes-vous déjà disputé avec un ami ? Parlez de cette expérience.",
                 options: ["경험", "칭찬", "여행", "선물"],
-                answer: "경험"
+                answerIndex: 0
             },
-            // Bridge: Tense Intro
+            // --- Transition ---
             {
-                type: "info",
-                title: "Le Temps", 
-                content: "Le temps verbal change selon la question. Certaines questions portent sur des expériences passées, d'autres sur des projets futurs.<br><br>Si vous êtes de niveau intermédiaire/avancé, vous devez savoir utiliser différents temps verbaux.",
-                icon: "ph-clock-countdown"
+                type: 'info',
+                title: "Les temps verbaux",
+                content: "Les temps verbaux à utiliser varient selon la question.<br><br>Certaines questions portent sur des <strong>expériences passées</strong> (Passé), tandis que d'autres demandent de parler de <strong>projets futurs</strong> (Futur).<br><br>Si vous êtes un locuteur de niveau intermédiaire ou avancé, vous devez être capable d'utiliser différents temps en fonction du sujet."
             },
-            // PART 2: Identify Tense (Questions 6-10 / Reusing Audios 1-5)
+            // --- Set 2: 시제 찾기 (옵션 3개) ---
             {
-                type: "quiz",
-                mode: "tense",
-                instruction: "Écoutez la question et choisissez le temps approprié.",
-                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782322/Q_ex_1_vaj6tr.mp3",
+                type: 'quiz',
+                instruction: "Écoutez la question et choisissez le temps verbal approprié.",
+                audio: "https://res.cloudinary.com/de76i94ia/video/upload/v1767782322/Q_ex_1_vaj6tr.mp3",
                 text: "가장 친한 친구가 누구예요? 그 친구에 대해 이야기하세요.",
                 translation: "Qui est votre meilleur ami ? Parlez de cet ami.",
-                options: ["과거", "미래", "현재"],
-                answer: "현재"
+                options: ["과거", "현재", "미래"],
+                answerIndex: 1 // 현재
             },
             {
-                type: "quiz",
-                mode: "tense",
-                instruction: "Écoutez la question et choisissez le temps approprié.",
-                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785142/Q_ex_2_oi4b89.mp3",
+                type: 'quiz',
+                instruction: "Écoutez la question et choisissez le temps verbal approprié.",
+                audio: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785142/Q_ex_2_oi4b89.mp3",
                 text: "어디에 여행을 가고 싶어요? 하고 싶은 여행에 대해 이야기하세요.",
-                translation: "Où voulez-vous aller en voyage ? Parlez du voyage que vous désirez faire.",
-                options: ["과거", "미래", "현재"],
-                answer: "미래"
+                translation: "Où voulez-vous voyager ? Parlez du voyage que vous voulez faire.",
+                options: ["과거", "현재", "미래"],
+                answerIndex: 2 // 미래 (Plan/Wish)
             },
             {
-                type: "quiz",
-                mode: "tense",
-                instruction: "Écoutez la question et choisissez le temps approprié.",
-                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785155/Q_ex_3_xoofmk.mp3",
+                type: 'quiz',
+                instruction: "Écoutez la question et choisissez le temps verbal approprié.",
+                audio: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785155/Q_ex_3_xoofmk.mp3",
                 text: "시간이 있을 때 뭘 해요? 좋아하는 활동에 대해 이야기하세요.",
-                translation: "Que faites-vous quand vous avez du temps ? Parlez des activités que vous aimez.",
-                options: ["과거", "미래", "현재"],
-                answer: "현재"
+                translation: "Que faites-vous quand vous avez du temps ? Parlez d'une activité que vous aimez.",
+                options: ["과거", "현재", "미래"],
+                answerIndex: 1 // 현재 (Habit)
             },
             {
-                type: "quiz",
-                mode: "tense",
-                instruction: "Écoutez la question et choisissez le temps approprié.",
-                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785165/Q_ex_4_warvot.mp3",
+                type: 'quiz',
+                instruction: "Écoutez la question et choisissez le temps verbal approprié.",
+                audio: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785165/Q_ex_4_warvot.mp3",
                 text: "내일은 친구의 생일이에요. 생일 파티 계획에 대해 이야기하세요.",
-                translation: "Demain, c'est l'anniversaire d'un ami. Parlez des projets pour la fête d'anniversaire.",
-                options: ["과거", "미래", "현재"],
-                answer: "미래"
+                translation: "Demain, c'est l'anniversaire d'un ami. Parlez de vos projets pour la fête d'anniversaire.",
+                options: ["과거", "현재", "미래"],
+                answerIndex: 2 // 미래
             },
             {
-                type: "quiz",
-                mode: "tense",
-                instruction: "Écoutez la question et choisissez le temps approprié.",
-                audioUrl: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785176/Q_ex_5_khlnli.mp3",
+                type: 'quiz',
+                instruction: "Écoutez la question et choisissez le temps verbal approprié.",
+                audio: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785176/Q_ex_5_khlnli.mp3",
                 text: "친구와 싸운 적이 있어요? 그 경험에 대해 이야기하세요.",
                 translation: "Vous êtes-vous déjà disputé avec un ami ? Parlez de cette expérience.",
-                options: ["과거", "미래", "현재"],
-                answer: "과거"
+                options: ["과거", "현재", "미래"],
+                answerIndex: 0 // 과거
             },
+            // --- Outro ---
             {
-                type: "outro",
-                title: "Terminé !",
-                content: "Bravo ! Dans l'Exercice 2, nous nous entraînerons à planifier les détails pour chaque question.",
-                icon: "ph-check-circle"
+                type: 'outro',
+                content: "Bon travail ! Entraînez-vous à planifier les détails pour chaque réponse dans les exercices 2 et 3 !"
             }
         ];
 
-        // --- STATE ---
+        // --- 상태 관리 ---
         let currentIndex = 0;
-        let attempts = 0;
+        let completionSynth = null;
+        let clickSynth = null;
+        let errorSynth = null;
+        let correctSynth = null;
+        let audioContextStarted = false;
         let currentAudio = null;
-        let isQuizSolved = false;
-        let lessonCompleted = false;
+        let currentBtn = null;
 
-        // Tone.js
-        let synth, errorSynth, correctSynth, endSynth;
+        // 퀴즈 상태 저장 (각 슬라이드별)
+        // attempts: 0 (시작), 1 (1회오답), 2 (2회오답 - 번역가능)
+        let quizStates = new Array(slides.length).fill(null).map(() => ({
+            attempts: 0,
+            solved: false,
+            showText: false,
+            showTrans: false
+        }));
 
-        // --- DOM ELEMENTS ---
-        const mainContent = document.getElementById('main-content');
+        // --- DOM 요소 ---
+        const contentArea = document.getElementById('content-area');
+        const navigation = document.getElementById('navigation');
         const progressBar = document.getElementById('progress-bar');
-        const pageIndicator = document.getElementById('page-indicator');
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
-        const appContainer = document.getElementById('app-container');
 
-        // --- AUDIO FUNCTIONS ---
+        // --- 오디오 초기화 ---
         async function initAudio() {
-            try {
+            if (!audioContextStarted) {
                 await Tone.start();
-                if (!synth) synth = new Tone.MembraneSynth().toDestination();
-                if (!errorSynth) {
-                    errorSynth = new Tone.Synth({
-                        oscillator: { type: "sawtooth" },
-                        envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }
-                    }).toDestination();
-                    errorSynth.volume.value = -5;
-                }
-                if (!correctSynth) {
-                    correctSynth = new Tone.Synth({
-                        oscillator: { type: "sine" },
-                        envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.5 }
-                    }).toDestination();
-                }
-                if (!endSynth) {
-                    endSynth = new Tone.PolySynth(Tone.Synth).toDestination();
-                    endSynth.volume.value = -5;
-                }
-            } catch (e) {
-                console.warn("Audio Context init failed", e);
+                completionSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+                clickSynth = new Tone.MembraneSynth({ pitchDecay:0.008, octaves:2, envelope:{attack:0.001, decay:0.1, sustain:0, release:0.1}}).toDestination();
+                errorSynth = new Tone.PluckSynth({ attackNoise: 1, dampening: 4000, resonance: 0.7 }).toDestination();
+                correctSynth = new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.2 } }).toDestination();
+                audioContextStarted = true;
             }
         }
 
-        function playAudio(url) {
-            stopAudio();
-
-            const btn = document.getElementById('main-audio-btn');
-            const audio = new Audio(url);
-            currentAudio = audio;
-
-            if (btn) {
-                btn.classList.remove('bg-gray-100', 'text-gray-600');
-                btn.classList.add('bg-blue-600', 'text-white');
-                btn.innerHTML = `<div class="playing-wave"><span></span><span></span><span></span></div>`;
-            }
-
-            audio.play().catch(e => console.error("Audio play failed", e));
-
-            audio.onended = () => {
-                resetAudioUI();
-                currentAudio = null;
-            };
-        }
-
-        function stopAudio() {
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                currentAudio = null;
-                resetAudioUI();
+        function playSound(type) {
+            if (!audioContextStarted) return;
+            switch(type) {
+                case 'click': clickSynth.triggerAttackRelease("F4", "32n"); break;
+                case 'correct': correctSynth.triggerAttackRelease("C5", "8n"); setTimeout(()=>correctSynth.triggerAttackRelease("G5","8n"), 150); break;
+                case 'error': errorSynth.triggerAttackRelease("C2", "8n"); break;
+                case 'complete': completionSynth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "4n"); break;
             }
         }
 
-        function resetAudioUI() {
-            const btn = document.getElementById('main-audio-btn');
-            if (btn) {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('bg-gray-100', 'text-gray-600');
-                btn.innerHTML = `<i class="ph-fill ph-speaker-high text-4xl"></i>`;
-            }
-        }
-
-        // --- RENDER LOGIC ---
+        // --- 렌더링 로직 ---
         function renderSlide(index) {
+            stopCurrentAudio();
             const slide = slides[index];
-            isQuizSolved = false; 
-            
-            // Disable next for quiz
-            if (slide.type === 'quiz') {
-                attempts = 0;
-                nextBtn.disabled = true;
-                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                nextBtn.disabled = false;
-                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
+            const state = quizStates[index];
+            const isLastPage = index === slides.length - 1;
 
-            // Compact layout for quiz to avoid scrolling
-            // Using Flex center column with max-w wrapper
-            let html = `<div class="w-full h-full flex flex-col justify-center items-center p-4 sm:p-6 fade-enter-active bg-white">`;
-            html += `<div class="w-full max-w-2xl flex flex-col gap-4 max-h-full justify-center text-center items-center">`;
+            // 프로그레스 바
+            const progress = ((index + 1) / slides.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            let html = '';
 
             if (slide.type === 'cover') {
-                html += `
-                    <div class="flex flex-col items-center justify-center text-center gap-6 shrink-0">
-                        <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 shadow-sm shrink-0">
-                            <i class="ph ${slide.icon} text-5xl"></i>
+                navigation.classList.add('hidden');
+                html = `
+                    <div class="slide-content fade-in" style="gap: 2rem;">
+                         <div class="flex-1 flex flex-col justify-center items-center w-full h-full" style="gap: 2rem;">
+                            <div class="bg-indigo-100 p-6 rounded-full flex-shrink-0">
+                                <i class="ph-fill ph-ear text-6xl text-indigo-600"></i>
+                            </div>
+                            <div class="text-center">
+                                <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4 px-2 break-keep">${slide.title}</h1>
+                                <p class="text-lg sm:text-xl text-gray-600 font-medium px-4">${slide.subtitle}</p>
+                            </div>
+                            <button onclick="startLesson()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-10 rounded-full shadow-lg transform transition hover:scale-105 flex items-center text-lg flex-shrink-0">
+                                Commencer <i class="ph-bold ph-arrow-right ml-2"></i>
+                            </button>
                         </div>
-                        <div class="flex flex-col gap-2">
-                            <h1 class="txt-title font-bold text-gray-800 leading-tight break-keep">${slide.title}</h1>
-                            ${slide.subtitle ? `<h2 class="txt-subtitle text-blue-600 font-medium">${slide.subtitle}</h2>` : ''}
-                        </div>
-                    </div>
-                `;
-            } 
-            else if (slide.type === 'outro') {
-                html += `
-                     <div class="flex flex-col items-center justify-center text-center gap-8 shrink-0">
-                         <div class="w-28 h-28 bg-green-50 rounded-full flex items-center justify-center text-green-600 shadow-sm shrink-0">
-                            <i class="ph ${slide.icon} text-6xl"></i>
-                        </div>
-                        <h1 class="txt-title font-bold text-gray-800">${slide.title}</h1>
-                        <p class="txt-subtitle text-gray-600 leading-relaxed max-w-md mx-auto">${slide.content}</p>
-                    </div>
-                `;
-            }
-            else if (slide.type === 'info') {
-                html += `
-                    <div class="flex flex-col items-center justify-center text-center gap-6 max-w-lg mx-auto shrink-0">
-                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 shrink-0">
-                            <i class="ph ${slide.icon} text-4xl"></i>
-                        </div>
-                        <h2 class="txt-title font-bold text-gray-800">${slide.title}</h2>
-                        <p class="txt-body text-gray-600 leading-relaxed break-keep">
-                            ${slide.content}
-                        </p>
-                    </div>
-                `;
-            }
-            else if (slide.type === 'quiz') {
-                // Determine Layout based on mode
-                let optionsLayout = '';
-                if (slide.mode === 'tense') {
-                    optionsLayout = `flex flex-col sm:flex-row w-full justify-center gap-3`;
-                } else {
-                    optionsLayout = `grid grid-cols-2 gap-3 w-full`;
-                }
-
-                html += `
-                    <div class="w-full text-center flex flex-col items-center shrink min-h-0 overflow-hidden">
-                        <h2 class="txt-instruction font-bold text-gray-800 mb-4 leading-relaxed shrink-0">${slide.instruction}</h2>
-                        
-                        <!-- Audio Button -->
-                        <button id="main-audio-btn" onclick="playAudio('${slide.audioUrl}')" 
-                            class="w-20 h-20 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all flex items-center justify-center shadow-md transform active:scale-95 mb-4 shrink-0">
-                            <i class="ph-fill ph-speaker-high text-4xl"></i>
-                        </button>
-
-                        <!-- Hint Area (Flexible) -->
-                        <div id="hint-area" class="w-full max-w-lg mb-4 min-h-[2.5rem] flex flex-col items-center justify-start gap-2 shrink overflow-y-auto no-scrollbar max-h-32">
-                            <!-- Hints injected here -->
-                        </div>
-
-                        <!-- Options -->
-                        <div class="${optionsLayout} max-w-md mx-auto shrink-0">
-                            ${slide.options.map(opt => `
-                                <button onclick="checkAnswer(this, '${opt}')" 
-                                    class="option-btn bg-white py-3 px-4 rounded-xl text-lg font-medium text-gray-700 shadow-sm korean-text w-full">
-                                    ${opt}
-                                </button>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }
-
-            html += `</div></div>`;
-            mainContent.innerHTML = html;
-            updateNav();
-        }
-
-        // --- QUIZ INTERACTION ---
-        function checkAnswer(btn, selected) {
-            if (isQuizSolved) return; 
-
-            const slide = slides[currentIndex];
-            initAudio(); 
-
-            if (selected === slide.answer) {
-                // Correct
-                isQuizSolved = true;
-                btn.classList.add('correct');
-                correctSynth.triggerAttackRelease("C5", "8n");
-                btn.innerHTML += ` <i class="ph-bold ph-check ml-2"></i>`;
-                
+                    </div>`;
+            } else if (slide.type === 'info' || slide.type === 'outro') {
+                navigation.classList.remove('hidden');
                 nextBtn.disabled = false;
-                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            } else {
-                // Wrong
-                btn.classList.add('wrong');
-                errorSynth.triggerAttackRelease("G2", "16n");
-                setTimeout(() => btn.classList.remove('wrong'), 500);
+                
+                let icon = slide.type === 'outro' ? 'ph-star' : 'ph-info';
+                let title = slide.title ? `<h2 class="responsive-title text-center mb-4">${slide.title}</h2>` : '';
 
-                // Handle Attempts (Hints)
-                handleAttempts(slide);
-            }
-        }
+                html = `
+                    <div class="slide-content fade-in" style="gap: 2rem;">
+                         <div class="flex-1 flex flex-col justify-center items-center w-full" style="gap: 2rem;">
+                            <div class="text-indigo-600 font-semibold flex flex-col items-center ${slide.type==='outro'?'animate-bounce':''}">
+                                <i class="ph-fill ${icon} text-6xl"></i>
+                            </div>
+                            ${title}
+                            <p class="responsive-text text-center px-4">${slide.content}</p>
+                        </div>
+                    </div>`;
+                
+                if (slide.type === 'outro') playSound('complete');
 
-        function handleAttempts(slide) {
-            attempts++;
-            const hintArea = document.getElementById('hint-area');
-            
-            let hintButtonsHtml = '';
-            
-            if (attempts >= 1) {
-                hintButtonsHtml += `
-                    <button onclick="showText()" class="hint-btn text-blue-600 hover:text-blue-800">
-                        <i class="ph-bold ph-book-open"></i> Lire le texte
-                    </button>
+            } else if (slide.type === 'quiz') {
+                navigation.classList.remove('hidden');
+                nextBtn.disabled = !state.solved;
+
+                // 옵션 버튼 HTML 생성
+                let optionsHtml = slide.options.map((opt, i) => {
+                    let statusClass = '';
+                    if (state.solved) {
+                        statusClass = i === slide.answerIndex ? 'correct' : 'disabled';
+                    }
+                    return `<button class="quiz-option ${statusClass}" onclick="checkAnswer(${index}, ${i}, this)" ${state.solved ? 'disabled' : ''}>${opt}</button>`;
+                }).join('');
+
+                // 텍스트/번역 표시 여부
+                let textStyle = state.showText || state.solved ? 'block' : 'none';
+                let transStyle = state.showTrans || state.solved ? 'block' : 'none';
+
+                // 그리드 레이아웃 설정 (4개: 2x2, 3개: 모바일 1열/PC 3열)
+                let gridClass = slide.options.length === 4 
+                    ? "grid grid-cols-2 gap-3 w-full max-w-md" 
+                    : "grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-2xl";
+
+                html = `
+                    <div class="slide-content quiz-mode fade-in">
+                        <h2 class="responsive-text text-center font-bold text-indigo-900 mb-0">${slide.instruction}</h2>
+                        
+                        <div class="flex flex-col items-center flex-shrink-0">
+                            <button id="audio-btn-${index}" class="custom-audio-btn" onclick="playAudio('${slide.audio}', 'audio-btn-${index}')">
+                                <i class="ph-fill ph-play"></i>
+                            </button>
+                        </div>
+
+                        <!-- 힌트 영역 컨테이너 (여백 최소화) -->
+                        <div id="hint-container-${index}" class="hint-container">
+                            <!-- JS로 버튼 주입 -->
+                            <div id="hint-box-${index}" class="hint-box" style="display: ${textStyle}">
+                                <div class="hint-text-korean">${slide.text}</div>
+                                <div id="trans-box-${index}" class="hint-text-french" style="display: ${transStyle}">
+                                    ${slide.translation}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 옵션 영역 (상하 간격 제거) -->
+                        <div class="${gridClass}">
+                            ${optionsHtml}
+                        </div>
+                    </div>
                 `;
             }
-            if (attempts >= 2) {
-                hintButtonsHtml += `
-                    <button onclick="showTrans()" class="hint-btn text-green-600 hover:text-green-800 ml-4">
-                        <i class="ph-bold ph-translate"></i> Voir la traduction
-                    </button>
-                `;
+
+            contentArea.innerHTML = html;
+            
+            // 퀴즈일 경우 힌트 버튼 상태 업데이트 (깜빡임 방지를 위해 innerHTML 설정 후 별도 함수 호출 아님)
+            if (slide.type === 'quiz') {
+                updateHintButtons(index);
             }
 
-            const isTextVisible = document.getElementById('revealed-text')?.classList.contains('hidden') === false;
-            const isTransVisible = document.getElementById('revealed-trans')?.classList.contains('hidden') === false;
+            prevBtn.disabled = index === 0;
 
-            const contentHtml = `
-                <div id="revealed-text" class="${isTextVisible ? '' : 'hidden'} mt-1 w-full p-3 bg-gray-50 rounded-lg text-gray-800 korean-text font-medium border border-gray-200 text-sm sm:text-base">
-                    ${slide.text}
-                </div>
-                <div id="revealed-trans" class="${isTransVisible ? '' : 'hidden'} mt-1 w-full p-2 bg-green-50 rounded-lg text-green-800 text-xs sm:text-sm border border-green-200">
-                    ${slide.translation}
-                </div>
-            `;
-
-            hintArea.innerHTML = `<div class="flex justify-center w-full flex-wrap">${hintButtonsHtml}</div>` + contentHtml;
-        }
-
-        window.showText = function() {
-            const el = document.getElementById('revealed-text');
-            if(el) el.classList.remove('hidden');
-        };
-
-        window.showTrans = function() {
-            const el = document.getElementById('revealed-trans');
-            if(el) el.classList.remove('hidden');
-        };
-
-        // --- NAVIGATION & RESIZE ---
-        function handleResize() {
-            const aspect = window.innerWidth / window.innerHeight;
-            const isMobile = aspect < 1;
-            if (isMobile) {
-                document.body.classList.add('mobile-mode');
+            if (isLastPage) {
+                nextBtn.innerHTML = `Terminer <i class="ph ph-check text-xl ml-2"></i>`;
+                nextBtn.onclick = () => window.parent.postMessage({ type: 'lesson_complete' }, '*');
             } else {
-                document.body.classList.remove('mobile-mode');
+                nextBtn.innerHTML = `Suivant <i class="ph ph-caret-right text-xl ml-2"></i>`;
+                nextBtn.onclick = nextSlide;
             }
-            renderSlide(currentIndex);
         }
-        window.addEventListener('resize', handleResize);
-        setTimeout(() => handleResize(), 100);
 
-        function updateNav() {
-            const progress = ((currentIndex + 1) / slides.length) * 100;
-            progressBar.style.width = `${progress}%`;
-            pageIndicator.textContent = `${currentIndex + 1} / ${slides.length}`;
+        // --- 힌트 버튼 업데이트 (깜빡임 방지용) ---
+        function updateHintButtons(index) {
+            const state = quizStates[index];
+            const container = document.getElementById(`hint-container-${index}`);
+            if (!container) return;
 
-            prevBtn.disabled = currentIndex === 0;
+            // 기존 힌트 박스 보존
+            const hintBox = container.querySelector('.hint-box');
+            
+            // 버튼 영역 생성 또는 찾기
+            let btnArea = container.querySelector('.hint-btn-area');
+            if (!btnArea) {
+                btnArea = document.createElement('div');
+                btnArea.className = 'hint-btn-area flex gap-2 justify-center';
+                container.insertBefore(btnArea, hintBox);
+            }
 
-            if (currentIndex === slides.length - 1) {
-                nextBtn.style.display = 'none';
-                if (!lessonCompleted) {
-                    completeLesson();
-                    lessonCompleted = true;
+            // 버튼 HTML 구성
+            let btnsHtml = '';
+            if (!state.solved) {
+                if (state.attempts >= 1 && !state.showText) {
+                    btnsHtml += `<button onclick="toggleHint('text', ${index})" class="hint-btn"><i class="ph-bold ph-book-open"></i> Lire le texte</button>`;
                 }
+                if (state.attempts >= 2 && !state.showTrans) {
+                    btnsHtml += `<button onclick="toggleHint('trans', ${index})" class="hint-btn ml-2"><i class="ph-bold ph-translate"></i> Traduction</button>`;
+                }
+            }
+            btnArea.innerHTML = btnsHtml;
+        }
+
+        // --- 퀴즈 로직 ---
+        function checkAnswer(slideIndex, optionIndex, btnElement) {
+            const slide = slides[slideIndex];
+            const state = quizStates[slideIndex];
+
+            if (state.solved) return;
+
+            if (optionIndex === slide.answerIndex) {
+                // 정답
+                state.solved = true;
+                playSound('correct');
+                btnElement.classList.add('correct');
+                
+                // 모든 옵션을 비활성화 및 상태 업데이트
+                const buttons = document.querySelectorAll('.quiz-option');
+                buttons.forEach((btn, idx) => {
+                    btn.disabled = true;
+                    if (idx !== optionIndex) btn.classList.add('disabled');
+                });
+
+                // 정답 시 텍스트 모두 공개
+                const hintBox = document.getElementById(`hint-box-${slideIndex}`);
+                const transBox = document.getElementById(`trans-box-${slideIndex}`);
+                if (hintBox) hintBox.style.display = 'block';
+                if (transBox) transBox.style.display = 'block';
+                
+                // 힌트 버튼 제거
+                updateHintButtons(slideIndex);
+
+                nextBtn.disabled = false;
             } else {
-                nextBtn.style.display = 'flex';
-                nextBtn.innerHTML = `<span class="hidden sm:inline">Suivant</span> <i class="ph-bold ph-arrow-right"></i>`;
-                lessonCompleted = false;
+                // 오답
+                state.attempts++;
+                playSound('error');
+                btnElement.classList.add('wrong');
+                setTimeout(() => btnElement.classList.remove('wrong'), 500);
+                
+                // 화면 전체 리렌더링 없이 힌트 버튼 영역만 업데이트
+                updateHintButtons(slideIndex);
             }
         }
 
-        // --- GLOBAL EVENT LISTENERS ---
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) stopAudio();
-        });
-        window.addEventListener('pagehide', stopAudio);
+        function toggleHint(type, index) {
+            const state = quizStates[index];
+            if (type === 'text') state.showText = !state.showText;
+            if (type === 'trans') state.showTrans = !state.showTrans;
+            
+            // 힌트 박스 표시 업데이트
+            const hintBox = document.getElementById(`hint-box-${index}`);
+            const transBox = document.getElementById(`trans-box-${index}`);
+            
+            if (state.showText && hintBox) hintBox.style.display = 'block';
+            if (state.showTrans && transBox) transBox.style.display = 'block';
 
-        async function nextSlide() {
-            stopAudio(); 
-            try {
-                await initAudio();
-                if (synth) synth.triggerAttackRelease("C2", "32n");
-            } catch (e) {}
+            // 버튼 상태 업데이트 (눌러서 이미 보이면 버튼 숨기기 등)
+            updateHintButtons(index);
+        }
+
+        // --- 오디오 기능 ---
+        function stopCurrentAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+            if (currentBtn) {
+                currentBtn.innerHTML = '<i class="ph-fill ph-play"></i>';
+                currentBtn.classList.remove('playing');
+                currentBtn = null;
+            }
+        }
+
+        function playAudio(src, btnId) {
+            const btn = document.getElementById(btnId);
+            if (currentBtn === btn) return;
+
+            stopCurrentAudio();
+            const audio = new Audio(src);
+            
+            audio.onended = () => {
+                btn.innerHTML = '<i class="ph-fill ph-play"></i>';
+                btn.classList.remove('playing');
+                currentAudio = null;
+                currentBtn = null;
+            };
+            
+            audio.play().catch(e => console.error("Audio play error:", e));
+            currentAudio = audio;
+            currentBtn = btn;
+            btn.innerHTML = '<i class="ph-fill ph-speaker-high"></i>';
+            btn.classList.add('playing');
+        }
+
+        // --- 네비게이션 ---
+        async function startLesson() {
+            await initAudio();
+            nextSlide();
+        }
+
+        function nextSlide() {
             if (currentIndex < slides.length - 1) {
+                if (slides[currentIndex].type === 'quiz' && !quizStates[currentIndex].solved) return;
+                playSound('click');
                 currentIndex++;
                 renderSlide(currentIndex);
             }
         }
 
-        async function prevSlide() {
-            stopAudio(); 
-            try {
-                await initAudio();
-                if (synth) synth.triggerAttackRelease("C2", "32n");
-            } catch (e) {}
+        function prevSlide() {
             if (currentIndex > 0) {
+                playSound('click');
                 currentIndex--;
                 renderSlide(currentIndex);
             }
         }
 
-        function completeLesson() {
-            if (endSynth) {
-                endSynth.triggerAttackRelease(["C5", "E5", "G5"], "8n");
-            }
-            console.log("Lesson Complete");
-            window.parent.postMessage({ type: 'lesson_complete' }, '*');
-        }
+        prevBtn.addEventListener('click', prevSlide);
 
-        // --- INIT ---
+        // 초기 렌더링
         renderSlide(0);
+
+        // 글로벌 노출
+        window.startLesson = startLesson;
+        window.playAudio = playAudio;
+        window.checkAnswer = checkAnswer;
+        window.toggleHint = toggleHint;
 
     </script>
 </body>
