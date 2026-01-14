@@ -54,17 +54,17 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: space-evenly; /* 요소들을 균등하게 배치 */
+            justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 2vh 4vw; /* vh, vw 단위로 패딩 조정 */
+            padding: 2vh 4vw;
             width: 100%;
             height: 100%;
-            overflow: hidden; /* 스크롤 절대 금지 */
+            overflow: hidden; 
             position: relative;
         }
 
-        /* 팁 페이지 컨테이너 */
+        /* 팁 페이지 래퍼 */
         .content-center-wrapper {
             display: flex;
             flex-direction: column;
@@ -73,21 +73,21 @@
             width: 100%;
             max-width: 600px;
             height: 100%;
-            gap: 2vh; /* vh 단위 간격 */
+            gap: 1.5vh; 
         }
 
-        /* 4. 커스텀 오디오 버튼 */
+        /* 4. 오디오 버튼 */
         .custom-audio-btn {
-            width: 8vh; /* 높이 기반 크기 */
-            height: 8vh;
-            max-width: 4rem; max-height: 4rem;
+            width: 7vh; 
+            height: 7vh;
+            max-width: 3.5rem; max-height: 3.5rem;
             border-radius: 50%;
             background-color: #4F46E5;
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3vh;
+            font-size: 2.5vh;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: all 0.2s ease;
@@ -117,97 +117,52 @@
             border: 1px solid #E5E7EB;
             transition: all 0.3s;
         }
-        
         .status-container.recording-active {
             background-color: #FEF2F2;
             border-color: #EF4444;
             box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
         }
-
-        .status-label {
-            font-size: 2.5vh;
-            font-weight: 800;
-            color: #374151;
-        }
-        
-        .recording-active .status-label {
-            color: #EF4444;
-        }
+        .status-label { font-size: 2.2vh; font-weight: 800; color: #374151; }
+        .recording-active .status-label { color: #EF4444; }
 
         .timer-track {
             width: 100%;
-            height: 1vh;
+            height: 0.8vh;
             background-color: #E5E7EB;
             border-radius: 999px;
             overflow: hidden;
-            position: relative;
         }
-
-        .timer-bar {
-            height: 100%;
-            width: 100%;
-            transition: width 0.1s linear;
-        }
-
+        .timer-bar { height: 100%; width: 100%; transition: width 0.1s linear; }
         .timer-bar.prep { background-color: #F59E0B; }
         .timer-bar.record { background-color: #EF4444; }
 
         .status-icon {
-            font-size: 5vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 8vh;
-            height: 8vh;
+            font-size: 4vh;
+            display: flex; align-items: center; justify-content: center;
+            width: 7vh; height: 7vh;
             border-radius: 50%;
             background-color: #F3F4F6;
         }
-        
-        .status-icon.prep { 
-            color: #F59E0B; 
-            background-color: #FFFBEB;
-            border: 2px solid #FCD34D;
-        }
-        
-        .status-icon.record { 
-            color: #DC2626; 
-            background-color: #FEF2F2;
-            border: 2px solid #EF4444;
-            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-        }
+        .status-icon.prep { color: #F59E0B; background-color: #FFFBEB; border: 2px solid #FCD34D; }
+        .status-icon.record { color: #DC2626; background-color: #FEF2F2; border: 2px solid #EF4444; animation: pulse-ring 1.5s infinite; }
 
         /* 컨트롤 버튼 */
         .control-btn {
             margin-top: 0.5vh;
             font-weight: 600;
-            padding: 1vh 3vh;
+            padding: 0.8vh 2.5vh;
             border-radius: 9999px;
-            font-size: 2vh;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: background-color 0.2s;
-            cursor: pointer;
-            border: none;
+            font-size: 1.8vh;
+            display: flex; align-items: center; gap: 0.5rem;
+            cursor: pointer; border: none; transition: background-color 0.2s;
         }
-
-        .stop-recording-btn {
-            background-color: #EF4444;
-            color: white;
-            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
-        }
-        
-        .skip-prep-btn {
-            background-color: #F59E0B;
-            color: white;
-            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
-        }
-
+        .stop-recording-btn { background-color: #EF4444; color: white; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3); }
+        .skip-prep-btn { background-color: #F59E0B; color: white; box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3); }
         .control-btn:active { transform: scale(0.95); }
 
-        /* 6. 텍스트 유틸리티 (vh 단위 적극 사용) */
+        /* 6. 텍스트 유틸리티 */
         .responsive-title {
-            font-size: clamp(1.2rem, 3.5vh, 2rem);
+            font-size: clamp(1.1rem, 3.2vh, 1.8rem); 
             font-weight: 800;
             color: #1F2937;
             margin: 0;
@@ -215,18 +170,16 @@
             text-align: center;
             flex-shrink: 0;
         }
-        
         .consigne-text {
-            font-size: clamp(1.1rem, 3vh, 1.6rem);
+            font-size: clamp(1rem, 2.8vh, 1.5rem);
             font-weight: 700;
             color: #312E81;
             margin: 0;
             line-height: 1.3;
             text-align: center;
         }
-
         .responsive-text {
-            font-size: clamp(0.9rem, 2.2vh, 1.2rem);
+            font-size: clamp(0.85rem, 2vh, 1.1rem);
             color: #4B5563;
             line-height: 1.4;
             max-width: 42rem;
@@ -234,134 +187,76 @@
             margin: 0;
         }
 
-        /* 팁 카드 (컴팩트) */
+        /* 팁 카드 */
         .tip-card {
             background-color: white;
             border-left: 4px solid #4F46E5;
-            padding: 1.5vh 2vh;
+            padding: 1.2vh 1.5vh;
             border-radius: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             width: 100%;
             text-align: left;
             margin-bottom: 0.5vh;
         }
-        
-        .tip-card.center-align {
-            text-align: center;
-        }
+        .tip-card.center-align { text-align: center; }
 
         .question-text {
-            font-size: clamp(0.8rem, 1.8vh, 1rem);
-            color: #4B5563;
-            font-weight: 600;
-            margin-bottom: 0.5vh;
-            display: block;
+            font-size: clamp(0.75rem, 1.7vh, 0.95rem);
+            color: #4B5563; font-weight: 600; margin-bottom: 0.5vh; display: block;
         }
-
-        .example-row {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5vh;
-        }
-
+        .example-row { display: flex; flex-direction: column; gap: 0.4vh; }
+        
         .level-tag {
-            font-size: clamp(0.7rem, 1.5vh, 0.9rem);
-            font-weight: 700;
-            color: #6B7280;
-            margin-right: 0.25rem;
+            font-size: clamp(0.65rem, 1.4vh, 0.85rem);
+            font-weight: 700; color: #6B7280; margin-right: 0.25rem;
         }
-
         .example-korean {
-            font-weight: 700;
-            color: #1F2937;
-            font-size: clamp(0.85rem, 2vh, 1.1rem);
+            font-weight: 700; color: #1F2937;
+            font-size: clamp(0.8rem, 1.9vh, 1.05rem);
             line-height: 1.4;
         }
-        
         .example-desc {
-            font-size: clamp(0.75rem, 1.6vh, 0.9rem);
-            color: #6366F1;
-            font-weight: 500;
-            display: inline-block;
+            font-size: clamp(0.7rem, 1.5vh, 0.85rem);
+            color: #6366F1; font-weight: 500; display: inline-block;
         }
 
         /* 결과 모달 */
         .result-modal {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.98);
-            z-index: 50;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            animation: fadeIn 0.3s ease-out;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.98); z-index: 50;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            padding: 1.5rem; animation: fadeIn 0.3s ease-out;
         }
-
         .result-content {
-            background: white;
-            border: 1px solid #E5E7EB;
+            background: white; border: 1px solid #E5E7EB;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            border-radius: 1rem;
-            padding: 2rem;
-            width: 100%;
-            max-width: 600px;
-            text-align: left;
-            max-height: 95%;
-            overflow-y: auto;
+            border-radius: 1rem; padding: 2rem;
+            width: 100%; max-width: 600px; text-align: left;
+            max-height: 95%; overflow-y: auto;
         }
-
         .user-answer-box {
-            background-color: #F0FDF4;
-            border: 1px solid #BBF7D0;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            margin-bottom: 1.5rem;
+            background-color: #F0FDF4; border: 1px solid #BBF7D0;
+            padding: 1rem; border-radius: 0.75rem; margin-bottom: 1.5rem;
         }
-
         .user-answer-label {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #15803D;
-            text-transform: uppercase;
-            margin-bottom: 0.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
+            font-size: 0.8rem; font-weight: 700; color: #15803D;
+            text-transform: uppercase; margin-bottom: 0.25rem;
+            display: flex; align-items: center; gap: 0.25rem;
         }
-        
         .user-answer-text {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: #1F2937;
+            font-size: 1.1rem; font-weight: 500; color: #1F2937;
             font-family: 'Noto Sans KR', sans-serif;
         }
-
         .raw-result-box {
-            background-color: #F9FAFB;
-            border: 1px solid #E5E7EB;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            font-size: 1rem;
-            color: #374151;
-            line-height: 1.6;
-            white-space: pre-wrap;
+            background-color: #F9FAFB; border: 1px solid #E5E7EB;
+            padding: 1rem; border-radius: 0.75rem; font-size: 1rem;
+            color: #374151; line-height: 1.6; white-space: pre-wrap;
             font-family: 'Noto Sans KR', sans-serif;
         }
-
         .close-btn {
-            margin-top: 1rem;
-            background-color: #F3F4F6;
-            color: #4B5563;
-            font-weight: 600;
-            padding: 0.75rem 2rem;
-            border-radius: 9999px;
-            width: 100%;
-            transition: all 0.2s;
+            margin-top: 1rem; background-color: #F3F4F6; color: #4B5563;
+            font-weight: 600; padding: 0.75rem 2rem; border-radius: 9999px;
+            width: 100%; transition: all 0.2s;
         }
         .close-btn:hover { background-color: #E5E7EB; }
 
@@ -372,11 +267,7 @@
             70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
         .hidden-el { display: none !important; }
 
     </style>
@@ -408,8 +299,8 @@
 
     <script>
         // --- Backend API 설정 ---
-        const GEMINI_API_URL = "https://coreeno.base44.app/api/apps/69021ec9e4512a451556d88d/functions/Geminichat";
-        const STT_API_URL = "https://coreeno.base44.app/api/apps/69021ec9e4512a451556d88d/functions/naverClovaSpeech";
+        const AI_EVAL_URL = "https://coreeno.base44.app/api/apps/69021ec9e4512a451556d88d/functions/Geminichat";
+        const STT_URL = "https://coreeno.base44.app/api/apps/69021ec9e4512a451556d88d/functions/naverClovaSpeech";
 
         // --- 데이터 설정 ---
         const slides = [
@@ -446,10 +337,11 @@
                 id: 'p1',
                 instruction: "Écoutez la question et répondez en une phrase.",
                 audio: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785142/Q_ex_2_oi4b89.mp3", // 여행 질문
-                systemPrompt: `가고싶은 여행지가 어딘지 설명하는 문장이다. 응답은 <점수> <설명> <번역> 태그를 사용해 작성하라. 
-                <점수> N/9점 형태로 출력
+                systemPrompt: `가고싶은 여행지가 어딘지 설명하는 문장이다. 응답은 <점수> <설명> <번역> 태그를 사용해 작성하라.
+<점수> N/9점 형태로 출력
 만점은 9점이며 문법, 어휘상 오류가 있는 경우, 표현이 매우 어색한 경우 감점한다. 가고싶은 여행지가 어디인지 설명하지 않는 경우 크게 감점한다.
-<설명>틀린 부분 및 감점 원인 명시 (한국어 2문장 이내) <번역> 설명란에 작성한 내용을 프랑스어로 번역한다.`
+<설명>틀린 부분 및 감점 원인 명시 (한국어 2문장 이내)
+<번역> 설명란에 작성한 내용을 프랑스어로 번역한다.`
             },
             // --- Page 4: 중급 팁 ---
             {
@@ -516,18 +408,19 @@
                     </div>
                 `
             },
-            // --- Page 6: 실전 2 (시간) ---
+            // --- Page 6: 실전 2 (시간) - 수정된 프롬프트 적용됨 ---
             {
                 type: 'speaking',
                 id: 'p2',
                 instruction: "Écoutez la question et répondez en une phrase.",
                 audio: "https://res.cloudinary.com/de76i94ia/video/upload/v1767785155/Q_ex_3_xoofmk.mp3", // 시간 질문
-                systemPrompt: `“시간이 있을 때 하는 일”에 대한 스피치 첫 문장이다. 응답은 <점수> <설명> 태그를 사용해 작성하라.
+                systemPrompt: `“시간이 있을 때 하는 일”에 대한 스피치 첫 문장이다. 응답은 <점수> <설명> <번역>태그를 사용해 작성하라.
 <점수> N/9점 형태로 출력
 만점은 9점이며 문법, 어휘상 오류가 있는 경우, 표현이 매우 어색한 경우마다 1점씩 감점한다.
-스피치의 전문이 아닌 첫 문장이므로 ‘방문하고 싶은 여행지가 어디인지’를 직접적으로 드러내지 않더라도 이야기를 전개해 나가기에 적절한 서론이라면 만점으로 평가한다.
-매우 단순한 문장 (저는 시간이 있을 때 …을 해요) 구성의 경우 최대 점수는 7점이다.
-<설명>틀린 부분 및 감점 원인 명시 (한국어 2문장 이내)`
+스피치의 전문이 아닌 첫 문장이므로 ‘방문하고 싶은 여행지가 어디인지’를 직접적으로 드러내지 않더라도 이야기를 전개해 나가기에 적절한 서론이라면 만점으로 평가한다. 
+매우 단순한 문장 (저는 시간이 있을 때 …을 해요) 구성의 경우 최대 점수는 7점이다. 
+<설명>틀린 부분 및 감점 원인 명시. 문법/어휘 오류 교정. (오류 당 한국어 1문장 이내)
+<번역> 설명의 내용을 프랑스어로 번역`
             },
             {
                 type: 'outro',
@@ -550,7 +443,6 @@
         let isRecording = false;
         let sequenceTimer = null; 
         
-        // 전역 스트림
         let currentStream = null;
 
         // --- DOM 요소 ---
@@ -586,17 +478,27 @@
 
             stopCurrentAudio();
             
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(stream => {
-                    currentStream = stream;
-                    playAudio(audioSrc, btnId, () => {
-                        startPrepPhase(slideId, stream);
-                    });
-                })
-                .catch(err => {
-                    console.error("Mic Error:", err);
-                    alert("L'accès au microphone est nécessaire pour cet exercice.");
+            if (currentStream && currentStream.active) {
+                 playAudio(audioSrc, btnId, () => {
+                    startPrepPhase(slideId, currentStream);
                 });
+            } else {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        currentStream = stream;
+                        playAudio(audioSrc, btnId, () => {
+                            startPrepPhase(slideId, stream);
+                        });
+                    })
+                    .catch(err => {
+                        console.error("Mic Error:", err);
+                        if(err.name === 'NotAllowedError' || err.name === 'SecurityError') {
+                             alert("Accès au microphone refusé.");
+                        } else {
+                             alert("Erreur: " + err.message);
+                        }
+                    });
+            }
         }
 
         function playAudio(src, btnId, onEnded) {
@@ -685,7 +587,7 @@
             skipBtn.classList.add('hidden-el'); 
             
             try {
-                mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
                 mediaRecorder.ondataavailable = e => {
                     if (e.data.size > 0) audioChunks.push(e.data);
@@ -694,7 +596,7 @@
                 mediaRecorder.start();
                 isRecording = true;
             } catch (e) {
-                alert("Erreur d'enregistrement: " + e.message);
+                alert("Erreur: " + e.message);
                 return;
             }
 
@@ -747,10 +649,6 @@
 
                 nextBtn.disabled = false;
 
-                if (mediaRecorder && mediaRecorder.stream) {
-                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
-                }
-
             } catch (err) {
                 alert("Erreur: " + err.message);
                 document.getElementById(`step-loading-${slideId}`).classList.add('hidden-el');
@@ -775,14 +673,13 @@
                         });
 
                         if (!response.ok) {
-                            const errorText = await response.text();
-                            throw new Error(`STT Error: ${errorText}`);
+                            throw new Error("Erreur de reconnaissance vocale");
                         }
 
                         const data = await response.json();
                         resolve(data.text || "Texte non reconnu");
                     } catch (error) {
-                        console.error("STT API Call Error:", error);
+                        console.error("STT Error:", error);
                         reject(error);
                     }
                 };
@@ -798,17 +695,17 @@
             };
 
             try {
-                const response = await fetch(GEMINI_API_URL, {
+                const response = await fetch(AI_EVAL_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 
-                if (!response.ok) throw new Error('Gemini API Error');
+                if (!response.ok) throw new Error('Erreur de service');
                 const data = await response.json();
                 return data.text; 
             } catch (error) {
-                return `<점수>Error<설명>${error.message}`;
+                return `<점수>Erreur<설명>${error.message}`;
             }
         }
 
@@ -842,11 +739,9 @@
             if (modal) modal.style.display = 'none';
         }
 
-        // 결과 포맷 함수 수정: 태그 파싱 없이 raw 텍스트 출력
         function formatResult(resultText, userText) {
             let html = ``;
             
-            // 유저 발화 표시
             if (userText) {
                 html += `
                     <div class="user-answer-box">
@@ -856,7 +751,6 @@
                 `;
             }
             
-            // Gemini 결과 (Raw text)
             html += `
                 <div class="raw-result-box">
                     ${resultText}
@@ -914,9 +808,8 @@
                 navigation.classList.remove('hidden');
                 nextBtn.disabled = false;
                 
-                // 팁 페이지는 scrollable을 사용하지 않고 content-center-wrapper로 중앙 정렬
                 html = `
-                    <div class="slide-content scrollable fade-in">
+                    <div class="slide-content fade-in">
                         ${slide.content}
                     </div>
                 `;
@@ -935,7 +828,6 @@
                     <div class="slide-content fade-in" style="justify-content: center;">
                         <h2 class="consigne-text mb-4 px-2">${slide.instruction}</h2>
                         
-                        <!-- 1. Audio Button -->
                         <div id="step-audio-${slide.id}" class="flex flex-col items-center flex-shrink-0 mt-8 transition-all duration-300">
                             <button id="audio-btn-${index}" class="custom-audio-btn" onclick="startPracticeSequence('${slide.audio}', 'audio-btn-${index}', '${slide.id}')">
                                 <i class="ph-fill ph-play"></i>
@@ -943,7 +835,6 @@
                             <p class="text-xs text-gray-400 mt-2">Écouter la question</p>
                         </div>
 
-                        <!-- 2. Status Display -->
                         <div id="step-status-${slide.id}" class="status-container hidden-el mt-4">
                             <div id="status-icon-${slide.id}" class="status-icon prep"><i class="ph-fill ph-clock"></i></div>
                             <div id="status-label-${slide.id}" class="status-label">Préparation</div>
@@ -952,7 +843,6 @@
                                 <div id="status-bar-${slide.id}" class="timer-bar prep" style="width: 100%;"></div>
                             </div>
                             
-                            <!-- Control Buttons -->
                             <button id="stop-btn-${slide.id}" class="control-btn stop-recording-btn hidden-el" onclick="stopRecording()">
                                 <i class="ph-fill ph-stop-circle"></i> Arrêter
                             </button>
@@ -961,13 +851,11 @@
                             </button>
                         </div>
 
-                        <!-- 3. Loading Display -->
                         <div id="step-loading-${slide.id}" class="hidden-el mt-8 flex flex-col items-center">
                             <i class="ph ph-spinner animate-spin text-4xl text-indigo-600 mb-2"></i>
                             <p class="text-gray-500">Analyse de votre réponse...</p>
                         </div>
 
-                        <!-- Result Modal -->
                         <div id="modal-${slide.id}" class="result-modal" style="display: ${state.result ? 'flex' : 'none'}">
                             <div class="result-content">
                                 <div id="result-content-${slide.id}">
@@ -992,7 +880,6 @@
             }
         }
 
-        // --- 네비게이션 ---
         async function startLesson() {
             await initAudio();
             nextSlide();
@@ -1015,11 +902,8 @@
         }
 
         prevBtn.addEventListener('click', prevSlide);
-
-        // 초기 렌더링
         renderSlide(0);
 
-        // 글로벌 노출
         window.startLesson = startLesson;
         window.startPracticeSequence = startPracticeSequence;
         window.stopRecording = stopRecording; 
